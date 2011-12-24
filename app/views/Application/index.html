@@ -1,4 +1,11 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
-
+<script>
+	$(function() {
+		var rich = new RichMap({
+			background: background
+		});
+		rich.appendTo(document.body);
+	});
+</script>
 <h1>&{"welcome"} ${controllers.Secure.Security.connected()}</h1>

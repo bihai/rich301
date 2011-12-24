@@ -26,3 +26,10 @@ R301.thirdparty = R301.thirdparty || {};
  * @namespace R301
  */
 R301.module = R301.module || {};
+
+/**
+ * Constant namespace.
+ * @type object
+ * @namespace R301
+ */
+R301.constants = R301.constants || {};
