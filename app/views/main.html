@@ -8,13 +8,14 @@
         <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}">
         <script src="@{'/public/javascripts/jquery-1.7.1.min.js'}" type="text/javascript" charset="UTF-8"></script>
         <script src="@{'/public/javascripts/rich301.js'}" type="text/javascript" charset="UTF-8"></script>
+		<script type="text/javascript">
+		R301.constants.CONTEXT_PATH = "${play.ctxPath}";
+		R301.constants.PUBLIC_PATH = R301.constants.CONTEXT_PATH + "/public";
+		</script>
         <script src="@{'/public/javascripts/game.js'}" type="text/javascript" charset="UTF-8"></script>
 		<script src="@{'/public/javascripts/map-config.js'}" type="text/javascript"></script>
 		<script src="@{'/public/javascripts/main.js'}" type="text/javascript"></script>
         #{get 'moreScripts' /}
-		<script type="text/javascript">
-		R301.constants.STATIC_PATH = @{'/public'};
-		</script>
     </head>
     <body>
         #{doLayout /}
