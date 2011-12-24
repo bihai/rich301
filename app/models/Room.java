@@ -9,24 +9,34 @@ import java.util.Set;
  * @author GuoLin
  *
  */
-public class Game {
+public class Room {
 
     public String name;
 
     public Set<Player> players;
 
-    public boolean running;
+    public Status status;
 
-    public Game(String name) {
+    public Room(String name) {
         this.name = name;
+        this.status = Status.WAITING;
     }
 
-    public Game addPlayer(Player player) {
+    public Room addPlayer(Player player) {
         if (players == null) {
             players = new HashSet<Player>();
         }
         players.add(player);
         return this;
+    }
+
+    public static enum Status {
+
+        WAITING,
+
+        PLAYING,
+
+        COMPLETED
     }
 
 }

@@ -1,0 +1,19 @@
+#{extends 'main.html' /}
+#{set title:messages.get("room.title.list") /}
+
+<h1>&{"room.title.list"}</h1>
+<div class="box">
+    <h2>&{"room.title.create"}</h2>
+    #{form @Rooms.create(), method:"POST"}
+        <label for="roomName">&{"room.name"}</label>
+        <input type="text" id="roomName" name="roomName" />
+    #{/form}
+</div>
+<ul class="rooms">
+    #{list items:rooms, as:"room"}
+    <li class="room">
+    ${room.name} : ${room.players?.size()}
+    #{a @Rooms.join(room.name)}&{"room.join"}#{/a}
+    </li>
+    #{/list}
+</ul>
