@@ -1,9 +1,5 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
-<script src="@{'/public/javascripts/jquery-1.7.1.min.js'}" type="text/javascript"></script>
-<script src="@{'/public/javascripts/jquery.websocket-0.0.1.js'}" type="text/javascript"></script>
-<script src="@{'/public/javascripts/map-config.js'}" type="text/javascript"></script>
-<script src="@{'/public/javascripts/main.js'}" type="text/javascript"></script>
 <script>
 	$(function() {
 		var rich = new RichMap({
@@ -12,3 +8,4 @@
 		rich.appendTo(document.body);
 	});
 </script>
+<h1>&{"welcome"} ${controllers.Secure.Security.connected()}</h1>
