@@ -1,3 +1,8 @@
 # You can specialize this file for each language.
 # For example, for French create a messages.fr file
 #
+welcome=Welcome to Rich301
+
+game.title.list=Games
+game.name=Name
+game.join=Join
