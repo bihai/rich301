@@ -2,10 +2,17 @@
 #{set title:'Home' /}
 <script>
 	$(function() {
-		var rich = new RichMap({
-			background: background
+		var rich = new R301.module.RichMap({
+			background: background,
+			map: map
 		});
 		rich.appendTo(document.body);
+		rich.run();
+		setTimeout(function() {
+			rich.queuePush(function() {
+				console.log('done');
+			});
+		}, 3000);
 	});
 </script>
 <h1>&{"welcome"} ${controllers.Secure.Security.connected()}</h1>
