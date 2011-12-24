@@ -19,5 +19,8 @@ GET     /games/?                                Games.list
 POST    /games/?                                Games.create
 POST    /games/{gameName}/players               Games.join
 
+# Maps
+GET     /maps/random                            Maps.random
+
 # Catch all
 *       /{controller}/{action}                  {controller}.{action}

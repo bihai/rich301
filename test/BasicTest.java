@@ -13,7 +13,7 @@ public class BasicTest extends UnitTest {
 
     @Test
     public void testMapJson() {
-    	GameMap map = MapGenerator.generateTestMap();
+    	Map map = MapGenerator.generateTestMap();
     	System.out.println(RichUtil.mapToJson(map));
     }
 }
