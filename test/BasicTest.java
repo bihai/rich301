@@ -1,7 +1,9 @@
 import org.junit.*;
 import java.util.*;
 import play.test.*;
+import util.RichUtil;
 import models.*;
+import models.Map;
 
 public class BasicTest extends UnitTest {
 
@@ -10,4 +12,9 @@ public class BasicTest extends UnitTest {
         assertEquals(2, 1 + 1);
     }
 
+    @Test
+    public void testMapJson() {
+        Map map = MapGenerator.generateTestMap();
+        System.out.println(RichUtil.mapToJson(map));
+    }
 }

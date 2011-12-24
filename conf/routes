@@ -22,5 +22,8 @@ DELETE  /rooms/{roomName}/players               Rooms.leave
 GET     /rooms/{roomName}/?                     Rooms.room
 GET     /ajax/rooms/{roomName}/state            Rooms.waitState
 
+# Maps
+GET     /maps/random                            Maps.random
+
 # Catch all
 *       /{controller}/{action}                  {controller}.{action}
