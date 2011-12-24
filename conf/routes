@@ -14,10 +14,11 @@ GET     /favicon.ico                            404
 # Map static resources from the /app/public folder to the /public path
 GET     /public/                                staticDir:public
 
-# Games
-GET     /games/?                                Games.list
-POST    /games/?                                Games.create
-POST    /games/{gameName}/players               Games.join
+# Rooms
+GET     /rooms/?                                Rooms.list
+POST    /rooms/?                                Rooms.create
+POST    /rooms/{roomName}/players               Rooms.join
+GET     /rooms/{roomName}/?                     Rooms.room
 
 # Maps
 GET     /maps/random                            Maps.random
