@@ -82,6 +82,7 @@ public class Room {
         PLAYING,
 
         COMPLETED
+
     }
 
 }
