@@ -1,11 +1,13 @@
 package models;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import play.libs.F.ArchivedEventStream;
-import play.libs.F.EventStream;
 import play.libs.F.IndexedEvent;
 import play.libs.F.Promise;
 
@@ -16,6 +18,8 @@ import play.libs.F.Promise;
  *
  */
 public class Room {
+
+    private static Map<String, Room> store = new HashMap<String, Room>();
 
     transient private final ArchivedEventStream<Room> events = new ArchivedEventStream<Room>(100);
     
@@ -43,8 +47,32 @@ public class Room {
         events.publish(this);
     }
 
+    public boolean isEmpty() {
+        return players.isEmpty();
+    }
+
+    public void save() {
+        store.put(name, this);
+    }
+
+    public void delete() {
+        store.remove(this);
+    }
+
     public Promise<List<IndexedEvent<Room>>> nextEvents(long lastReceived) {
         return events.nextEvents(lastReceived);
+    }
+
+    public static Collection<Room> all() {
+        return store.values();
+    }
+
+    public static Room findByName(String name) {
+        return store.get(name);
+    }
+
+    public static boolean exists(String name) {
+        return store.containsKey(name);
     }
 
     public static enum Status {

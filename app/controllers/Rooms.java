@@ -25,28 +25,26 @@ import controllers.Secure.Security;
  */
 public class Rooms extends Controller {
 
-    private static Map<String, Room> rooms = new HashMap<String, Room>();
-
     public static void list() {
-        Collection<Room> rooms = Rooms.rooms.values();
+        Collection<Room> rooms = Room.all();
         render(rooms);
     }
 
     public static void create(String roomName) {
-        if (rooms.containsKey(roomName) || StringUtils.isBlank(roomName)) {
+        if (Room.exists(roomName) || StringUtils.isBlank(roomName)) {
             return;
         }
         Room room = new Room(roomName);
         String connected = Security.connected();
         Player player = new Player(connected);
         room.join(player);
-        rooms.put(roomName, room);
+        room.save();
         room(roomName);
     }
 
     public static void join(String roomName) {
         String connected = Security.connected();
-        Room room = rooms.get(roomName);
+        Room room = Room.findByName(roomName);
         Player player = new Player(connected);
         room.join(player);
         room(roomName);
@@ -54,22 +52,26 @@ public class Rooms extends Controller {
 
     public static void leave(String roomName) {
         String connected = Security.connected();
-        Room room = rooms.get(roomName);
+        Room room = Room.findByName(roomName);
         Player player = new Player(connected);
         room.leave(player);
+        if (room.isEmpty()) {
+            room.delete();
+        }
         list();
     }
 
     public static void room(String roomName) {
-        Room room = rooms.get(roomName);
+        Room room = Room.findByName(roomName);
         notFoundIfNull(room);
         render(room);
     }
 
     public static void waitState(String roomName, Long lastReceived) {
-        Room room = rooms.get(roomName);
+        Room room = Room.findByName(roomName);
         notFoundIfNull(room);
         List messages = await(room.nextEvents(lastReceived));
         renderJSON(messages, new TypeToken<List<IndexedEvent<Room>>>() {}.getType());
     }
+
 }

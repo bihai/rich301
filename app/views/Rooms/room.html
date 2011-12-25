@@ -1,5 +1,5 @@
 #{extends 'main.html' /}
-#{set title:messages.get("game.title") /}
+#{set title:messages.get("room.title") /}
 
 <h1>&{"room.title"}</h1>
 #{a @Rooms.leave(room.name)}&{"room.leave"}#{/a}
@@ -15,7 +15,7 @@
     #{/list}
 </ul>
 
-HERE IS THE GAME
+#{a @Games.game(room.name)}&{"game.start"}#{/a}
 
 <script type="text/javascript">
 (function($, window) {

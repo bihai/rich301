@@ -22,6 +22,10 @@ DELETE  /rooms/{roomName}/players               Rooms.leave
 GET     /rooms/{roomName}/?                     Rooms.room
 GET     /ajax/rooms/{roomName}/state            Rooms.waitState
 
+# Game
+GET     /games/{gameName}/?                     Games.game
+GET     /ajax/games/{gameName}/events           Games.waitEvents
+
 # Maps
 GET     /maps/random                            Maps.random
 
