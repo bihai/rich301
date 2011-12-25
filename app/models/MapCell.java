@@ -25,6 +25,8 @@ public abstract class MapCell {
 	
 	public int nextId;
 	
+	public String type;
+	
 	public MapCell(MapCell next, MapCell previous, int id, String roadName, String cellName) {
 		this.next = next;
 		this.previous = previous;
@@ -32,13 +34,11 @@ public abstract class MapCell {
 		this.roadName = roadName;
 		this.cellName = cellName;
 		this.size = 1;
+		this.type = this.getClass().getSimpleName();
 	}
 	
 	public MapCell(int id, String roadName, String cellName) {
-		this.id = id;
-		this.roadName = roadName;
-		this.cellName = cellName;
-		this.size = 1;
+		this(null, null, id, roadName, cellName);
 	}
 	
 	/**
