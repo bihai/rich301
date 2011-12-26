@@ -1,4 +1,48 @@
 #{extends 'main.html' /}
-#{set title:messages.get("game.title") /}
+#{set title:messages.get("room.title") /}
 
-here is game
+<h1>&{"room.title"}</h1>
+#{a @Rooms.leave(room.name)}&{"room.leave"}#{/a}
+<p>
+&{"room.status"}: <em id="room-status">${room.status}</em>
+</p>
+<p>
+&{"room.players"}
+</p>
+<ul id="players">
+    #{list items: room.players, as: "player"}
+    <li>${player.name}</li>
+    #{/list}
+</ul>
+
+#{a @Games.game(room.name)}&{"game.start"}#{/a}
+
+<script type="text/javascript">
+(function($, window) {
+
+    var lastReceived = 0;
+    var waitMessages = #{jsAction @Rooms.waitState(room.name, ":lastReceived") /}
+    var getMessages = function() {
+        $.ajax({
+            url: waitMessages({ lastReceived: lastReceived }),
+            contentType: "application/json",
+            success: function(events, textStatus) {
+                var event = events[0], room = event.data, players = room.players,
+                    i, n, player, playersContainer = $("#players");
+                playersContainer.empty();
+                for (i = 0, n = players.length; i < n; i++) {
+                    $("<li>" + players[i].name + "</li>").appendTo(playersContainer);
+                }
+                $("#room-status").text(room.status);
+                lastReceived = event.id;
+                getMessages();
+            },
+            error: function(request, textStatus, error) {
+                console.log(textStatus, error);
+            }
+        });
+    }
+    getMessages();
+
+})(jQuery, window)
+</script>

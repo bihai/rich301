@@ -1,0 +1,40 @@
+#{extends 'main.html' /}
+#{set title:messages.get("game.title") /}
+
+<div id="players">
+<ul>
+    #{list items: game.players, as: "player"}
+    <li>${player.name}</li>
+    #{/list}
+</ul>
+</div>
+<div id="game">
+HERE IS GAME
+</div>
+
+
+
+<script type="text/javascript">
+// Handle events
+(function($, window) {
+
+    var lastReceived = 0;
+    var waitEvents = #{jsAction @Games.waitEvents(game.name, ":lastReceived") /}
+    var getEvents = function() {
+        $.ajax({
+            url: waitEvents({ lastReceived: lastReceived }),
+            contentType: "application/json",
+            success: function(events, textStatus) {
+                console.log(events);
+                lastReceived = events[0].id;
+                getEvents();
+            },
+            error: function(request, textStatus, error) {
+                console.log(textStatus, error);
+            }
+        });
+    };
+    getEvents();
+
+})(jQuery, window);
+</script>

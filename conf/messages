@@ -8,3 +8,9 @@ room.title.list=Rooms
 room.title.create=Create room
 room.name=Name
 room.join=Join
+room.leave=Leave
+room.players=Players
+room.status=Status
+
+game.title=Game
+game.start=Start game
