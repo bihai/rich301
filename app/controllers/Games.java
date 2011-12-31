@@ -13,6 +13,7 @@ import models.Game.Event;
 import models.Room;
 import play.libs.F.IndexedEvent;
 import play.mvc.Controller;
+import play.mvc.With;
 
 /**
  * Control games.
@@ -20,6 +21,7 @@ import play.mvc.Controller;
  * @author GuoLin
  *
  */
+@With(Secure.class)
 public class Games extends Controller {
 
     public static void game(String gameName) {

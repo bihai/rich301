@@ -13,7 +13,7 @@ public class Player {
     public Role role;
 
     public Player(String name) {
-        this(name, Role.DEFAULT);
+        this(name, Role.RANDOM);
     }
 
     public Player(String name, Role role) {

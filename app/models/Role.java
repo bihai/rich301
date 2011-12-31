@@ -3,6 +3,8 @@ package models;
 import java.util.Collection;
 import java.util.HashMap;
 
+import play.i18n.Messages;
+
 /**
  * Role.
  * 
@@ -11,7 +13,7 @@ import java.util.HashMap;
  */
 public class Role {
 
-    public static final Role DEFAULT = new EmptyRole();
+    public static final Role RANDOM = new EmptyRole();
 
     private static java.util.Map<String, Role> STORE = new HashMap<String, Role>();
 
@@ -39,7 +41,7 @@ public class Role {
     public static class EmptyRole extends Role {
 
         public EmptyRole() {
-            super("No selected", "empty.png");
+            super(Messages.get("room.role.random"), "role_random.png");
         }
 
     }

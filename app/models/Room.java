@@ -34,6 +34,18 @@ public class Room {
         this.status = Status.WAITING;
     }
 
+    public Player getPlayer(String name) {
+        if (players == null || players.isEmpty()) {
+            return null;
+        }
+        for (Player player : players) {
+            if (player.name.equals(name)) {
+                return player;
+            }
+        }
+        return null;
+    }
+
     public void join(Player player) {
         if (players == null) {
             players = new HashSet<Player>();
@@ -43,6 +55,9 @@ public class Room {
     }
 
     public void leave(Player player) {
+        if (players == null || players.isEmpty()) {
+            return;
+        }
         players.remove(player);
         events.publish(this);
     }
