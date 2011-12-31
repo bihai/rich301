@@ -10,22 +10,22 @@ import com.google.gson.annotations.Expose;
  * @author xiaoxiao
  *
  */
-public class Map {
+public class GameMap {
 
 	public final int height;
 	
 	public final int width;
 	
-	public final MapCell[][] mapCells;
+	public final Cell[][] mapCells;
 	
-	public Map(int height, int width) {
+	public GameMap(int height, int width) {
 		this.height = height;
 		this.width = width;
-		mapCells = new MapCell[height][width];
+		mapCells = new Cell[height][width];
 	}
 
 	public static String randomMap() {
-		Map gameMap = MapGenerator.generateTestMap();
+		GameMap gameMap = MapGenerator.generateTestMap();
 		return RichUtil.mapToJson(gameMap);
 	}
 }

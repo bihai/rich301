@@ -23,6 +23,8 @@ public class Game {
     public String name;
 
     public Set<Player> players;
+    
+    public Player currentPlayer;
 
     public Game(Room room) {
         this.name = room.name;
@@ -45,6 +47,37 @@ public class Game {
     public static boolean exists(String name) {
         return store.containsKey(name);
     }
+    
+    enum Action {
+        
+        ROLL {
+            @Override
+            public List<Event> doAction() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        },
+        
+        BUY {
+            @Override
+            public List<Event> doAction() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        },
+        
+        END {
+        
+            @Override
+            public List<Event> doAction() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+        };
+        
+        public abstract List<Event> doAction();
+    }
 
     /**
      * Abstract event class.
@@ -63,6 +96,13 @@ public class Game {
 
     public static class StartEvent extends Event {
 
+    }
+    
+    public static class DiceEvent extends Event {
+        
+        private int value;
+        
+        
     }
 
 }

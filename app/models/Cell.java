@@ -7,11 +7,11 @@ import com.google.gson.annotations.Expose;
  * @author xiaoxiao
  *
  */
-public abstract class MapCell {
+public abstract class Cell {
 
-	public MapCell next;
+	public Cell next;
 	
-	public MapCell previous;
+	public Cell previous;
 	
 	public final int id;
 	
@@ -27,7 +27,7 @@ public abstract class MapCell {
 	
 	public String type;
 	
-	public MapCell(MapCell next, MapCell previous, int id, String roadName, String cellName) {
+	public Cell(Cell next, Cell previous, int id, String roadName, String cellName) {
 		this.next = next;
 		this.previous = previous;
 		this.id = id;
@@ -37,7 +37,7 @@ public abstract class MapCell {
 		this.type = this.getClass().getSimpleName();
 	}
 	
-	public MapCell(int id, String roadName, String cellName) {
+	public Cell(int id, String roadName, String cellName) {
 		this(null, null, id, roadName, cellName);
 	}
 	
@@ -46,7 +46,7 @@ public abstract class MapCell {
 	 * It would also set previous cell id.
 	 * @param previous The previous cell.
 	 */
-	public void pendPrevious(MapCell previous) {
+	public void pendPrevious(Cell previous) {
 		this.previous = previous;
 		this.previousId = previous.id;
 		previous.next = this;
@@ -58,7 +58,7 @@ public abstract class MapCell {
 	 * It would also set the next cell id.
 	 * @param next The next cell.
 	 */
-	public void pendNext(MapCell next) {
+	public void pendNext(Cell next) {
 		this.next = next;
 		this.nextId = next.id;
 		next.previous = this;

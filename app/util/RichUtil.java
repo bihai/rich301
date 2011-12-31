@@ -3,7 +3,7 @@ package util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import models.Map;
+import models.GameMap;
 
 public class RichUtil {
 
@@ -14,17 +14,17 @@ public class RichUtil {
 	 * @param cellWidth The width index of the cell in the map.
 	 * @return The id of the cell.
 	 */
-	public static int retrieveCellId(Map gameMap, int cellHeight, int cellWidth) {
+	public static int retrieveCellId(GameMap gameMap, int cellHeight, int cellWidth) {
 		return gameMap.height * cellHeight + cellWidth;
 	}
 	
 	/**
 	 * You know.
-	 * This method would turn a {@link Map} object into a json string.
+	 * This method would turn a {@link GameMap} object into a json string.
 	 * @param gameMap The given map.
 	 * @return The json string represents the map object.
 	 */
-	public static String mapToJson(Map gameMap) {
+	public static String mapToJson(GameMap gameMap) {
 		GsonBuilder builder = new GsonBuilder();
 		builder.setExclusionStrategies(new GsonUtils.GsonPropertyExclusionStrategy());
 		Gson gson = builder.create();
