@@ -25,6 +25,7 @@ GET     /ajax/rooms/{roomName}/state            Rooms.waitState
 # Game
 GET     /games/{gameName}/?                     Games.game
 GET     /ajax/games/{gameName}/events           Games.waitEvents
+POST    /ajax/games/action/{actionName}         Games.action
 
 # Maps
 GET     /maps/random                            Maps.random

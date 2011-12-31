@@ -1,5 +1,6 @@
 package controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map;
 import com.google.gson.reflect.TypeToken;
 
 import models.Game;
+import models.Player;
 import models.Game.Event;
 import models.Room;
 import play.libs.F.IndexedEvent;
@@ -38,4 +40,7 @@ public class Games extends Controller {
         renderJSON(events, new TypeToken<List<IndexedEvent<Game.Event>>>() {}.getType());
     }
 
+    public static void action(String actionName) {
+        
+    }
 }
