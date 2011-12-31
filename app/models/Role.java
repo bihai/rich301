@@ -17,7 +17,7 @@ public class Role {
 	 * The actions when a role is buying a estate cell.
 	 * @param cell The given estate cell to be bought.
 	 */
-	public void buyEstate(EstateMapCell cell) {
+	public void buyEstate(EstateCell cell) {
 		this.cash = this.cash - cell.price;
 		cell.owner = this;
 	}
@@ -28,7 +28,7 @@ public class Role {
 	 * if the owner is not the same.
 	 * @param cell The given estate cell the role is passing by.
 	 */
-	public void passEstate(EstateMapCell cell) {
+	public void passEstate(EstateCell cell) {
 		if (cell.owner != null && !this.equals(cell.owner)) {
 			this.cash -= cell.price;
 			cell.owner.cash += cell.price;
