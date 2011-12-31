@@ -1,12 +1,15 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import play.libs.F.ArchivedEventStream;
 import play.libs.F.IndexedEvent;
 import play.libs.F.Promise;
+import util.RichUtil;
 
 /**
  * Game model.
@@ -16,24 +19,26 @@ import play.libs.F.Promise;
  */
 public class Game {
 
-    private static java.util.Map<String, Game> store = new HashMap<String, Game>();
+    private static Map<String, Game> store = new HashMap<String, Game>();
 
-    transient private final ArchivedEventStream<Game.Event> events = new ArchivedEventStream<Game.Event>(100);
-    
     public String name;
 
-    public Set<Player> players;
+    public List<Player> players = new ArrayList<Player>();
     
     public Player currentPlayer;
+    
+    public GameMap gameMap;
+    
+    public int round;
 
-    public Game(Room room) {
+    public Game(Room room, GameMap map) {
         this.name = room.name;
-        this.players = room.players;
-        events.publish(new StartEvent());
-    }
-
-    public Promise<List<IndexedEvent<Game.Event>>> nextEvents(long lastReceived) {
-        return events.nextEvents(lastReceived);
+        for (Player player : room.players) {
+            players.add(player);
+            player.randomStart(map);
+        }
+        this.nextPlayer();
+        Event.events.publish(new StartEvent());
     }
 
     public void save() {
@@ -48,61 +53,79 @@ public class Game {
         return store.containsKey(name);
     }
     
-    enum Action {
+    public boolean validPlayer(String connected) {
+        return currentPlayer != null && connected.equals(currentPlayer.name);
+    }
+    
+    /**
+     * Switch to the next player.
+     * This method would be applied at the start of the game.
+     * Or when the turn of one player is ended.
+     * A {@link NextPlayerEvent} would be generated in the process.
+     */
+    public void nextPlayer() {
+        if (currentPlayer == null) {
+            currentPlayer = players.get(0);
+            round = 1;
+        }
+        else {
+            int currentIndex = players.indexOf(currentPlayer);
+            currentPlayer = players.get((currentIndex + 1) % players.size());
+            round++;
+        }
+        Event.events.publish(new NextPlayerEvent(currentPlayer.name));
+    }
+    
+    public enum Action {
         
         ROLL {
             @Override
-            public List<Event> doAction() {
-                // TODO Auto-generated method stub
-                return null;
+            public void doAction(Game currentGame) {
+                int value = currentGame.currentPlayer.roll();
+                currentGame.currentPlayer.move(value);
             }
+        },
+        
+        PASS {
+            @Override
+            public void doAction(Game currentGame) {
+                currentGame.currentPlayer.pass();
+            }
+            
         },
         
         BUY {
             @Override
-            public List<Event> doAction() {
-                // TODO Auto-generated method stub
-                return null;
+            public void doAction(Game currentGame) {
+                currentGame.currentPlayer.buyCell();
+                currentGame.nextPlayer();
             }
         },
         
         END {
-        
             @Override
-            public List<Event> doAction() {
-                // TODO Auto-generated method stub
-                return null;
+            public void doAction(Game currentGame) {
+                currentGame.nextPlayer();
             }
             
         };
         
-        public abstract List<Event> doAction();
+        public abstract void doAction(Game currentGame);
     }
 
-    /**
-     * Abstract event class.
-     * <p>
-     * This class is root class for all kind of events. For JSON serialization, provide a 
-     * {@link #type} property to indicate which type of event it is.</p>
-     * 
-     * @author GuoLin
-     *
-     */
-    public static abstract class Event {
-
-        public final String type = getClass().getSimpleName();
-
-    }
-
-    public static class StartEvent extends Event {
+    class StartEvent extends Event {
 
     }
     
-    public static class DiceEvent extends Event {
+    
+    class NextPlayerEvent extends Event {
         
-        private int value;
+        public  final String playerName;
         
+        public NextPlayerEvent(String playerName) {
+            this.playerName = playerName;
+        }
         
     }
-
+    
 }
