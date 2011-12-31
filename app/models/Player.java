@@ -10,8 +10,15 @@ public class Player {
 
     public String name;
 
+    public Role role;
+
     public Player(String name) {
+        this(name, Role.DEFAULT);
+    }
+
+    public Player(String name, Role role) {
         this.name = name;
+        this.role = role;
     }
 
     @Override
