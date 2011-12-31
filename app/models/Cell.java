@@ -64,4 +64,8 @@ public abstract class Cell {
 		next.previous = this;
 		next.previousId = this.id;
 	}
+	
+	public abstract boolean canBuy();
+	
+	public abstract boolean needPass();
 }
