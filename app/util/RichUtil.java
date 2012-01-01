@@ -1,5 +1,6 @@
 package util;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Random;
 
@@ -38,11 +39,11 @@ public class RichUtil {
     }
     
     
-    public static String eventsToJson(List<IndexedEvent<Event>> events) {
+    public static String eventsToJson(List<IndexedEvent<Event>> events, Type type) {
         GsonBuilder builder = new GsonBuilder();
         builder.setExclusionStrategies(new GsonUtils.GsonPropertyExclusionStrategy());
         Gson gson = builder.create();
-        return gson.toJson(events);
+        return gson.toJson(events, type);
     }
 
     /**
