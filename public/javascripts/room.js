@@ -11,8 +11,15 @@
      * @param {object} options Options to pass settings
      */
     R301.module.Room = function(options) {
+        var me = this;
         this.options = $.extend({}, this.options, options);
         this.subscribe();
+        this.options.startButton.click(function() {
+            me.onStartClick();
+        });
+        this.options.leaveButton.click(function() {
+            me.onLeaveClick();
+        });
     }
 
     R301.module.Room.prototype = {
@@ -42,7 +49,7 @@
              * @type jQuery
              */
             roleSelector: null,
-            
+
             /**
              * Root URL to store role face.
              * @type string
@@ -64,6 +71,38 @@
         selectedRole: null,
         
         /**
+         * Players in the room.
+         * @type array
+         */
+        players: [],
+        
+        /**
+         * Render players.
+         */
+        renderPlayers: function() {
+            var me = this, faceRoot = this.options.faceRoot,
+                container = this.options.playersContainer;
+            container.empty();
+            $.each(this.players, function(i, player) {
+                var self = (player.name == R301.constants.CURRENT_USER),
+                    htmls = [], el;
+                htmls.push('<li class="' + (self ? 'me' : 'other') + '">');
+                htmls.push('<img class="role" src="' + (faceRoot + player.role.face) + '" />');
+                htmls.push('<div class="details">')
+                htmls.push('<em class="name">' + player.name + '</em>'); 
+                htmls.push('<em class="role-name">' + player.role.name + '</em>'); 
+                htmls.push('</div>')
+                htmls.push("</li>");
+                el = $(htmls.join("")).appendTo(container);
+                if (self) {
+                    el.click(function() {
+                        me.options.roleSelector.toggle("fast");
+                    });
+                }
+            });
+        },
+
+        /**
          * Subscribe room state change event in comet.
          */
         subscribe: function() {
@@ -75,6 +114,7 @@
                     contentType: "application/json",
                     success: function(events, textStatus) {
                         var event = events[0], room = event.data, roles;
+                        // XXX response may only include changed part of whole state in the future
                         me.onPlayerUpdated(room.players);
                         me.onStatusUpdated(room.status);
                         roles = me._getUnselectedRoles(room.players);
@@ -139,31 +179,21 @@
          * @param {array} players All players that in the room
          */
         onPlayerUpdated: function(players) {
-            var htmls, i, n, player, self, el, me = this,
-                faceRoot = this.options.faceRoot, 
-                container = this.options.playersContainer;
+            var current = R301.constants.CURRENT_USER;
             if (!players) {
                 return;
             }
-            container.empty();
-            for (i = 0, n = players.length; i < n; i++) {
-                player = players[i];
-                self = player.name == R301.constants.CURRENT_USER;
-                htmls = [];
-                htmls.push('<li' + (self ? ' class="me"' : '') + '>');
-                htmls.push('<img class="role" src="' + (faceRoot + player.role.face) + '" />');
-                htmls.push('<div class="details">')
-                htmls.push('<em class="name">' + player.name + '</em>'); 
-                htmls.push('<em class="role-name">' + player.role.name + '</em>'); 
-                htmls.push('</div>')
-                htmls.push("</li>");
-                el = $(htmls.join("")).appendTo(container);
-                if (self) {
-                    el.click(function() {
-                        me.options.roleSelector.toggle("fast");
-                    });
+            players.sort(function(l, r) { 
+                if (l.name == current) {
+                    return -1;
+                } else if (r.name == current) {
+                    return 1;
+                } else {
+                    return l.name > r.name ? -1 : 1;
                 }
-            }
+            });
+            this.players = players;
+            this.renderPlayers();
         },
 
         /**
@@ -173,7 +203,7 @@
         onStatusUpdated: function(status) {
             $("#room-status").text(status);
         },
-        
+
         /**
          * Get unselected roles from specified players.
          * @param {array} players Players to filter
@@ -192,7 +222,7 @@
                 }
             }
             return $.grep(roles, function(role) {
-                return $.inArray(role.name, selected);
+                return $.inArray(role.name, selected) == -1;
             });
         }
 
