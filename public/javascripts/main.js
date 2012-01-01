@@ -1,5 +1,15 @@
 (function() {
 	
+	Player = function(settings) {
+		settings = $.extend({
+			
+		}, settings);
+	};
+	
+	Player.prototype = {
+			
+	};
+	
 	var RichMap = function(settings) {
 		settings = $.extend({
 				gridWidth: 64,
@@ -28,9 +38,8 @@
 		
 		img.src = settings.background;
 		this.bgCanvas = bgCanvas;
-		this.canvas = canvas;
+		this.canvas = canvas;              
 		this.ctx = ctx;
-		this.queue = [];
 	};
 	
 	RichMap.prototype = {
@@ -40,24 +49,61 @@
 		},
 		draw: function() {
 			this.ctx.drawImage(this.bgCanvas, 0, 0);
-		},
-		queuePush: function(fn) {
-			this.queue.push(fn);
-		},
-		run: function() {
-			var me = this;
-			setInterval(function() {
-				var t;
-				me.draw();
-				if(me.queue.length > 0) {
-					while(me.queue.length > 0) {
-						t = me.queue.shift();
-						t.constructor === Function && t();
-					}
-				}
-			}, 40);
 		}
 	};
 	
+	var Game = function(settings) {
+		settings = $.extend({
+			fps: 25,
+			speed: 2
+		}, settings);
+		
+		this.settings = settings;
+		this.actions = [];
+	};
+	Game.prototype = {
+		run: function() {
+			var me = this,
+				t = null,
+				interval = 1000 / this.settings.fps;
+			setInterval(function() {
+				console.log('out');
+				if(me.actions.length > 0) {
+					while(me.actions.length > 0) {
+						t = me.actions.shift();
+						t.constructor === Function && t();
+					}
+				}
+			}, interval);
+		},
+		registerAction: function(action) {
+			this.actions.push(action);
+		}
+	};
+	
+	var Action = {
+		roll: function() {},
+		bug: function() {},
+		run: function() {}
+	}
+	
 	R301.module.RichMap = RichMap;
+	R301.module.Game = Game;
 })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
