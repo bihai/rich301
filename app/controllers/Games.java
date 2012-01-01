@@ -7,12 +7,17 @@ import java.util.Map;
 
 import com.google.gson.reflect.TypeToken;
 
+import controllers.Secure.Security;
+
+import models.Event;
 import models.Game;
+import models.GameMap;
+import models.MapGenerator;
 import models.Player;
-import models.Game.Event;
 import models.Room;
 import play.libs.F.IndexedEvent;
 import play.mvc.Controller;
+import util.RichUtil;
 
 /**
  * Control games.
@@ -27,7 +32,8 @@ public class Games extends Controller {
         if (game == null) {
             Room room = Room.findByName(gameName);
             notFoundIfNull(room);
-            game = new Game(room);
+            GameMap map = MapGenerator.generateTestMap();
+            game = new Game(room, map);
             game.save();
         }
         render(game);
@@ -36,11 +42,19 @@ public class Games extends Controller {
     public static void waitEvents(String gameName, Long lastReceived) {
         Game game = Game.findByName(gameName);
         notFoundIfNull(game);
-        List<IndexedEvent<Event>> events = await(game.nextEvents(lastReceived));
-        renderJSON(events, new TypeToken<List<IndexedEvent<Game.Event>>>() {}.getType());
+        List<IndexedEvent<Event>> events = await(Event.nextEvents(lastReceived));
+        renderJSON(events, new TypeToken<List<IndexedEvent<Event>>>() {}.getType());
     }
 
-    public static void action(String actionName) {
-        
+    public static void action(String gameName, String actionName) {
+        Game game = Game.findByName(gameName);
+        notFoundIfNull(game);
+        String connected = Security.connected();
+        if (!game.validPlayer(connected)) {
+            unauthorized();
+        }
+        Game.Action currentAction = Game.Action.valueOf(actionName.toUpperCase());
+        notFoundIfNull(currentAction);
+        currentAction.doAction(game);
     }
 }
