@@ -26,7 +26,7 @@ public class GsonUtils {
         
         @Override
         public boolean shouldSkipField(FieldAttributes attributes) {
-        	return attributes.getDeclaredType().toString().contains("class models.MapCell");
+        	return attributes.getDeclaredType().toString().contains("class models.Cell");
         }
     }
 }

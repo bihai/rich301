@@ -140,7 +140,7 @@ public class Player {
         return true;
     }
     
-    class DiceEvent extends Event {
+    static class DiceEvent extends Event {
         
         public int value;
         
@@ -150,7 +150,7 @@ public class Player {
         
     }
     
-    class MoveEvent extends Event {
+    static class MoveEvent extends Event {
         
         public final int step;
         
@@ -160,7 +160,7 @@ public class Player {
         
     }
     
-    class CashChangeEvent extends Event {
+    static class CashChangeEvent extends Event {
         
         public final int cashChange;
         

@@ -114,7 +114,7 @@ public class Game {
         public abstract void doAction(Game currentGame);
     }
 
-    class StartEvent extends Event {
+    static class StartEvent extends Event {
 
         public final Game game;
         
@@ -124,7 +124,7 @@ public class Game {
     }
     
     
-    class NextPlayerEvent extends Event {
+    static class NextPlayerEvent extends Event {
         
         public final String playerName;
         

@@ -2,6 +2,7 @@ package models;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import play.i18n.Messages;
 
@@ -13,9 +14,9 @@ import play.i18n.Messages;
  */
 public class Role {
 
-    public static final Role RANDOM = new EmptyRole();
+    public static final Role RANDOM = new EmptyRole(); 
 
-    private static java.util.Map<String, Role> STORE = new HashMap<String, Role>();
+    private static final Map<String, Role> STORE = new HashMap<String, Role>();
 
     public String name;
 

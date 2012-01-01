@@ -45,7 +45,7 @@ public class Games extends Controller {
         Game game = Game.findByName(gameName);
         notFoundIfNull(game);
         List<IndexedEvent<Event>> events = await(Event.nextEvents(lastReceived));
-        renderJSON(events, new TypeToken<List<IndexedEvent<Event>>>() {}.getType());
+        renderJSON(RichUtil.eventsToJson(events));
     }
 
     public static void action(String gameName, String actionName) {
