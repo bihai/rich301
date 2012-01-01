@@ -29,12 +29,13 @@ public class Game {
     
     public int round;
 
-    public Game(Room room, GameMap map) {
+    public Game(Room room) {
         id = IdGenerator.generate();
         this.name = room.name;
+        this.gameMap = MapGenerator.generateMap();
         for (Player player : room.players) {
             players.add(player);
-            player.randomStart(map);
+            player.randomStart(gameMap);
         }
         this.nextPlayer();
         Event.events.publish(new StartEvent(this));

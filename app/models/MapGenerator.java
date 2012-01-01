@@ -4,10 +4,10 @@ import util.RichUtil;
 
 public class MapGenerator {
 
-	/*
+	/**
 	 * 
 	 */
-	public static GameMap generateTestMap() {
+	public static GameMap generateMap() {
 		GameMap gameMap = new GameMap(18, 23);
 		
 		Cell cell70 = new EmptyCell(RichUtil.retrieveCellId(gameMap, 7, 0), "百子湾路", "后现代城");

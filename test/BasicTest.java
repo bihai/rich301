@@ -14,7 +14,7 @@ public class BasicTest extends UnitTest {
 
     @Test
     public void testMapJson() {
-        GameMap map = MapGenerator.generateTestMap();
+        GameMap map = MapGenerator.generateMap();
         System.out.println(RichUtil.mapToJson(map));
     }
 }
