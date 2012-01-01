@@ -90,8 +90,7 @@ public class Rooms extends Controller {
     public static void start(Integer roomId) {
         Room room = Room.get(roomId);
         notFoundIfNull(room, "Room not found.");
-        GameMap map = MapGenerator.generateTestMap();
-        Game game = new Game(room, map).save();
+        Game game = new Game(room).save();
         Games.game(game.id);
     }
 

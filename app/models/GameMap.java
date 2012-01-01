@@ -32,7 +32,7 @@ public class GameMap {
     }
 
     public static String randomMap() {
-        GameMap gameMap = MapGenerator.generateTestMap();
+        GameMap gameMap = MapGenerator.generateMap();
         return RichUtil.mapToJson(gameMap);
     }
 }

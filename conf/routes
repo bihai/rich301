@@ -24,13 +24,11 @@ POST    /rooms/{roomId}/game                    Rooms.start
 PUT     /ajax/rooms/{roomId}/players/current/{roleId}    Rooms.selectRole
 GET     /ajax/rooms/{roomId}/state              Rooms.waitState
 
-# Game
+# Games
 GET     /games/{gameId}/?                       Games.game
 GET     /ajax/games/{gameId}/events             Games.waitEvents
 POST    /ajax/games/{gameId}/action/{actionName}         Games.action
 
-# Maps
-GET     /maps/random                            Maps.random
 
 # Catch all
 *       /{controller}/{action}                  {controller}.{action}
