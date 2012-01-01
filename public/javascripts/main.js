@@ -1,21 +1,12 @@
 (function() {
 	
-	Player = function(settings) {
-		settings = $.extend({
-			
-		}, settings);
-	};
-	
-	Player.prototype = {
-			
-	};
-	
-	var RichMap = function(settings) {
+	var Game = function(settings) {
 		settings = $.extend({
 				gridWidth: 64,
 				gridHeight: 48,
 				background: '',
-				map: ''
+				map: '',
+				fps: 25
 			}, settings);
 		if(!settings.background || !settings.map) {
 			throw new errors('this map photo is not exist!');
@@ -40,55 +31,99 @@
 		this.bgCanvas = bgCanvas;
 		this.canvas = canvas;              
 		this.ctx = ctx;
+		this.queue = [];
+		this.settings = settings;
 	};
 	
-	RichMap.prototype = {
+	Game.prototype = {
 		appendTo: function(el) {
 			el = typeof el === 'string' ? document.getElementById(el) : el;
 			el.appendChild(this.canvas);
 		},
-		draw: function() {
+		refresh: function() {
 			this.ctx.drawImage(this.bgCanvas, 0, 0);
-		}
-	};
-	
-	var Game = function(settings) {
-		settings = $.extend({
-			fps: 25,
-			speed: 2
-		}, settings);
-		
-		this.settings = settings;
-		this.actions = [];
-	};
-	Game.prototype = {
+		},
+		queuePush: function(fn) {
+			this.queue.push(fn);
+		},
 		run: function() {
 			var me = this,
-				t = null,
-				interval = 1000 / this.settings.fps;
+				interval = 1000 / me.settings.fps;
 			setInterval(function() {
-				console.log('out');
-				if(me.actions.length > 0) {
-					while(me.actions.length > 0) {
-						t = me.actions.shift();
+				var t;
+				if(me.queue.length > 0) {
+					while(me.queue.length > 0) {
+						t = me.queue.shift();
 						t.constructor === Function && t();
 					}
 				}
 			}, interval);
+		}
+	};
+	
+	Player = function(settings) {
+		settings = $.extend({
+			avatar: '',
+			height: '',
+			width: ''
+		}, settings);
+		var player = document.createElement('canvas'),
+			avatar = document.createElement('img'),
+			ctx = player.getContext('2d');
+		
+		player.height = settings.height;
+		player.width = settings.width;
+		
+		avatar.width = settings.width;
+		
+		avatar.addEventListener('load', function() {
+			ctx.drawImage(avatar, 0, 0);
+		});
+		
+		avatar = settings.avatar;
+		
+		this.player = player;
+	};
+	
+	Player.prototype = {
+		appendTo: function(el) {
+			el.appendChild(this.player);
 		},
-		registerAction: function(action) {
-			this.actions.push(action);
+		getPlayer: function() {
+			return this.player;
+		},
+		roll: function() {
+			
+		},
+		buy: function() {
+			
+		},
+		run: function() {
+			
 		}
 	};
 	
 	var Action = {
+		init: function() {
+			$.ajax({
+                url: '/ajax/games/'+ gameId +'/events?lastReceived=0',
+                contentType: "application/json",
+                success: function(events, textStatus) {
+                   console.log(events, textStatus);
+                },
+                error: function(request, textStatus, error) {
+                    console.log(123123);
+                }
+            });
+		},
 		roll: function() {},
 		bug: function() {},
 		run: function() {}
 	}
 	
-	R301.module.RichMap = RichMap;
 	R301.module.Game = Game;
+	R301.module.Player = Player;
+	R301.module.Action = Action;
 })();
 
 
