@@ -39,7 +39,7 @@ public class Game {
             player.randomStart(map);
         }
         this.nextPlayer();
-        Event.events.publish(new StartEvent());
+        Event.events.publish(new StartEvent(this));
     }
 
     public void save() {
@@ -116,12 +116,17 @@ public class Game {
 
     class StartEvent extends Event {
 
+        public final Game game;
+        
+        public StartEvent(Game game) {
+            this.game = game;
+        }
     }
     
     
     class NextPlayerEvent extends Event {
         
-        public  final String playerName;
+        public final String playerName;
         
         public NextPlayerEvent(String playerName) {
             this.playerName = playerName;
