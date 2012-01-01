@@ -33,11 +33,13 @@
 <script type="text/javascript">
 (function($, window) {
 
-    var waitEventsAction = #{jsAction @Rooms.waitState(room.id, ":lastReceived") /};
+    var waitEventsAction = #{jsAction @Rooms.waitState(room.id, ":lastReceived") /}
     var changeRoleAction = #{jsAction @Rooms.selectRole(room.id, ":roleId") /}
+    var gameAction = #{jsAction @Games.game(":gameId") /}
     new R301.module.Room({
         waitEventsAction: waitEventsAction,
         changeRoleAction: changeRoleAction,
+        gameAction: gameAction,
         playersContainer: $("#players"),
         roleSelector: $("#role-selector"),
         faceRoot: "${play.ctxPath}${play.configuration['rich301.role.url.prefix']}/",

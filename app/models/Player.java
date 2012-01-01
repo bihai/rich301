@@ -1,8 +1,12 @@
 package models;
 
-import exception.GameException;
 import util.IdGenerator;
 import util.RichUtil;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import exception.GameException;
 
 /**
  * Player model.
@@ -23,7 +27,7 @@ public class Player {
     public int cash;
     
     private static final int DEFAULT_CASH = 10008;
-    
+
     public Player(String name) {
         this(name, Role.RANDOM);
     }
@@ -112,6 +116,14 @@ public class Player {
     
     public boolean canAfford(EstateCell estateCell) {
         return cash >= estateCell.price;
+    }
+
+    public JsonElement toJson() {
+        JsonObject object = new JsonObject();
+        object.addProperty("id", id);
+        object.addProperty("name", name);
+        object.addProperty("role", role.toJson());
+        return object;
     }
 
     @Override

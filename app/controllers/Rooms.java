@@ -90,8 +90,8 @@ public class Rooms extends Controller {
     public static void start(Integer roomId) {
         Room room = Room.get(roomId);
         notFoundIfNull(room, "Room not found.");
-        Game game = new Game(room).save();
-        Games.game(game.id);
+        room.startGame();
+        Games.game(room.id);
     }
 
     public static void waitState(Integer roomId, Long lastReceived) {
