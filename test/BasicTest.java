@@ -3,7 +3,7 @@ import java.util.*;
 import play.test.*;
 import util.RichUtil;
 import models.*;
-import models.Map;
+import models.GameMap;
 
 public class BasicTest extends UnitTest {
 
@@ -14,7 +14,7 @@ public class BasicTest extends UnitTest {
 
     @Test
     public void testMapJson() {
-        Map map = MapGenerator.generateTestMap();
+        GameMap map = MapGenerator.generateTestMap();
         System.out.println(RichUtil.mapToJson(map));
     }
 }

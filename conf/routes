@@ -2,23 +2,31 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Import Secure routes
-*      /                module:secure
-
-# Home page
-GET     /                                       Application.index
-
 # Ignore favicon requests
 GET     /favicon.ico                            404
 
 # Map static resources from the /app/public folder to the /public path
 GET     /public/                                staticDir:public
 
+# Import Secure routes
+*      /                module:secure
+
+# Home page
+GET     /                                       Application.index
+
 # Rooms
 GET     /rooms/?                                Rooms.list
 POST    /rooms/?                                Rooms.create
 POST    /rooms/{roomName}/players               Rooms.join
+DELETE  /rooms/{roomName}/players               Rooms.leave
 GET     /rooms/{roomName}/?                     Rooms.room
+PUT     /rooms/{roomName}/players/current/{roleName}    Rooms.selectRole
+GET     /ajax/rooms/{roomName}/state            Rooms.waitState
+
+# Game
+GET     /games/{gameName}/?                     Games.game
+GET     /ajax/games/{gameName}/events           Games.waitEvents
+POST    /ajax/games/{gameName}/action/{actionName}         Games.action
 
 # Maps
 GET     /maps/random                            Maps.random

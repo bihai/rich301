@@ -1,4 +1,50 @@
 #{extends 'main.html' /}
-#{set title:messages.get("game.title") /}
+#{set title:messages.get("room.title") /}
+#{set 'moreScripts'}
+<script src="@{'/public/javascripts/room.js'}" type="text/javascript" charset="UTF-8"></script>
+#{/set}
+#{set 'moreStyles'}
+<link rel="stylesheet" media="screen" href="@{'/public/stylesheets/room.css'}" />
+#{/set}
 
-here is game
+<div class="room">
+    <h1>&{"room.title"}</h1>
+    
+    <p>
+    &{"room.status"}: <em id="room-status">${room.status}</em>
+    </p>
+    <div id="role-selector" style="display: none;">
+        <h3>&{"room.selectRole"}</h3>
+        <ul>
+        </ul>
+    </div>
+    <div class="players">
+        <h3>&{"room.players"}</h3>
+        <ul id="players">
+        </ul>
+    </div>
+    <div class="action">
+    #{a @Games.game(room.name), class: "big-button start"}&{"game.start"}#{/a}
+    #{a @Rooms.leave(room.name), class: "big-button leave"}&{"room.leave"}#{/a}
+    </div>
+
+</div>
+
+<script type="text/javascript">
+(function($, window) {
+
+    var waitEventsAction = #{jsAction @Rooms.waitState(room.name, ":lastReceived") /};
+    new R301.module.Room({
+        waitEventsAction: waitEventsAction,
+        playersContainer: $("#players"),
+        roleSelector: $("#role-selector"),
+        faceRoot: "${play.ctxPath}${play.configuration['rich301.role.url.prefix']}/",
+        roles: [
+            #{list items: roles, as: "role"}
+            { name: "${role.name}", face: "${role.face}" }${role_isLast ? "" : ","}
+            #{/list}
+        ]
+    });
+
+})(jQuery, window)
+</script>

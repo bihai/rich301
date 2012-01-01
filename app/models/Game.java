@@ -1,0 +1,137 @@
+package models;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import play.libs.F.ArchivedEventStream;
+import play.libs.F.IndexedEvent;
+import play.libs.F.Promise;
+import util.RichUtil;
+
+/**
+ * Game model.
+ * 
+ * @author GuoLin
+ *
+ */
+public class Game {
+
+    private static Map<String, Game> store = new HashMap<String, Game>();
+
+    public String name;
+
+    public List<Player> players = new ArrayList<Player>();
+    
+    public Player currentPlayer;
+    
+    public GameMap gameMap;
+    
+    public int round;
+
+    public Game(Room room, GameMap map) {
+        this.name = room.name;
+        for (Player player : room.players) {
+            players.add(player);
+            player.randomStart(map);
+        }
+        this.nextPlayer();
+        Event.events.publish(new StartEvent(this));
+    }
+
+    public void save() {
+        store.put(name, this);
+    }
+
+    public static Game findByName(String name) {
+        return store.get(name);
+    }
+
+    public static boolean exists(String name) {
+        return store.containsKey(name);
+    }
+    
+    public boolean validPlayer(String connected) {
+        return currentPlayer != null && connected.equals(currentPlayer.name);
+    }
+    
+    /**
+     * Switch to the next player.
+     * This method would be applied at the start of the game.
+     * Or when the turn of one player is ended.
+     * A {@link NextPlayerEvent} would be generated in the process.
+     */
+    public void nextPlayer() {
+        if (currentPlayer == null) {
+            currentPlayer = players.get(0);
+            round = 1;
+        }
+        else {
+            int currentIndex = players.indexOf(currentPlayer);
+            currentPlayer = players.get((currentIndex + 1) % players.size());
+            round++;
+        }
+        Event.events.publish(new NextPlayerEvent(currentPlayer.name));
+    }
+    
+    public enum Action {
+        
+        ROLL {
+            @Override
+            public void doAction(Game currentGame) {
+                int value = currentGame.currentPlayer.roll();
+                currentGame.currentPlayer.move(value);
+            }
+        },
+        
+        PASS {
+            @Override
+            public void doAction(Game currentGame) {
+                currentGame.currentPlayer.pass();
+            }
+            
+        },
+        
+        BUY {
+            @Override
+            public void doAction(Game currentGame) {
+                currentGame.currentPlayer.buyCell();
+                currentGame.nextPlayer();
+            }
+        },
+        
+        END {
+            @Override
+            public void doAction(Game currentGame) {
+                currentGame.nextPlayer();
+            }
+            
+        };
+        
+        public abstract void doAction(Game currentGame);
+    }
+
+    class StartEvent extends Event {
+
+        public final Game game;
+        
+        public StartEvent(Game game) {
+            this.game = game;
+        }
+    }
+    
+    
+    class NextPlayerEvent extends Event {
+        
+        public final String playerName;
+        
+        public NextPlayerEvent(String playerName) {
+            this.playerName = playerName;
+        }
+        
+    }
+    
+}

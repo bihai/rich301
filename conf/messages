@@ -8,3 +8,13 @@ room.title.list=Rooms
 room.title.create=Create room
 room.name=Name
 room.join=Join
+room.leave=Leave
+room.players=Players
+room.status=Status
+room.selectRole=Select your role
+room.player.me=Me
+room.player.others=Others
+room.role.random=Random
+
+game.title=Game
+game.start=Start
