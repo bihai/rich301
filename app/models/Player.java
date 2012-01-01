@@ -18,6 +18,8 @@ public class Player {
 
     public Role role;
     
+    public Cell currentCell;
+    
     public Integer currentCellId;
 
     public int cash;
@@ -41,7 +43,8 @@ public class Player {
      * @param map The given map.
      */
     public void randomStart(GameMap map) {
-        currentCellId = RichUtil.randomCell(map).id;
+        currentCell = RichUtil.randomCell(map);
+        currentCellId = currentCell.id;
     }
     
     /**
@@ -65,6 +68,7 @@ public class Player {
     public void move(int step) {
         while (step-- > 0) {
             currentCell = currentCell.next;
+            currentCellId = currentCell.id;
             if (currentCell == null) {
                 throw new GameException("Cannot move to the target cell");
             }
