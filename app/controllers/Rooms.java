@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import models.Player;
+import models.Role;
 import models.Room;
 
 import org.apache.commons.lang.StringUtils;
 
 import play.libs.F.IndexedEvent;
 import play.mvc.Controller;
+import play.mvc.With;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -23,6 +25,7 @@ import controllers.Secure.Security;
  * @author GuoLin
  *
  */
+@With(Secure.class)
 public class Rooms extends Controller {
 
     public static void list() {
@@ -36,6 +39,7 @@ public class Rooms extends Controller {
         }
         Room room = new Room(roomName);
         String connected = Security.connected();
+        System.out.println(connected);
         Player player = new Player(connected);
         room.join(player);
         room.save();
@@ -53,7 +57,7 @@ public class Rooms extends Controller {
     public static void leave(String roomName) {
         String connected = Security.connected();
         Room room = Room.findByName(roomName);
-        Player player = new Player(connected);
+        Player player = room.getPlayer(connected);
         room.leave(player);
         if (room.isEmpty()) {
             room.delete();
@@ -61,10 +65,21 @@ public class Rooms extends Controller {
         list();
     }
 
+    public static void selectRole(String roomName, String roleName) {
+        Room room = Room.findByName(roomName);
+        notFoundIfNull(room);
+        Role role = Role.findByName(roleName);
+        notFoundIfNull(role);
+        String connected = Security.connected();
+        Player player = room.getPlayer(connected);
+        player.role = role;
+    }
+
     public static void room(String roomName) {
         Room room = Room.findByName(roomName);
         notFoundIfNull(room);
-        render(room);
+        Collection<Role> roles = Role.all();
+        render(room, roles);
     }
 
     public static void waitState(String roomName, Long lastReceived) {

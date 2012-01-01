@@ -1,0 +1,8 @@
+ul, ol, li, form, img, body, td, table, tr, th, ol, html, h1, h2, h3, h4, h5, h6, h7, p { margin: 0; padding: 0; }
+html { font-size: 12px; height: 100%; }
+body { background: #f0f0f0; text-align: left; height: 100%; color: #666; font-family: Verdana,"Microsoft Yahei",Tahoma,Arial,Helvetica,STHeiti; font-size: 12px; font-style: normal; font-variant: normal; font-weight: normal; line-height: 180%; }
+img { border: none; }
+ul, ol { list-style-type: none; }
+a { color: #c68f0c; text-decoration: none; }
+a:hover { color: #c68f0c; text-decoration: none;}
+table, td { font-size: 12px; word-break: break-all; }

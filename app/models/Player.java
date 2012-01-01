@@ -22,7 +22,7 @@ public class Player {
     private static final int DEFAULT_CASH = 10008;
     
     public Player(String name) {
-        this(name, Role.DEFAULT);
+        this(name, Role.RANDOM);
     }
 
     public Player(String name, Role role) {

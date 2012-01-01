@@ -1,48 +1,50 @@
 #{extends 'main.html' /}
 #{set title:messages.get("room.title") /}
+#{set 'moreScripts'}
+<script src="@{'/public/javascripts/room.js'}" type="text/javascript" charset="UTF-8"></script>
+#{/set}
+#{set 'moreStyles'}
+<link rel="stylesheet" media="screen" href="@{'/public/stylesheets/room.css'}" />
+#{/set}
 
-<h1>&{"room.title"}</h1>
-#{a @Rooms.leave(room.name)}&{"room.leave"}#{/a}
-<p>
-&{"room.status"}: <em id="room-status">${room.status}</em>
-</p>
-<p>
-&{"room.players"}
-</p>
-<ul id="players">
-    #{list items: room.players, as: "player"}
-    <li>${player.name}</li>
-    #{/list}
-</ul>
+<div class="room">
+    <h1>&{"room.title"}</h1>
+    
+    <p>
+    &{"room.status"}: <em id="room-status">${room.status}</em>
+    </p>
+    <div id="role-selector" style="display: none;">
+        <h3>&{"room.selectRole"}</h3>
+        <ul>
+        </ul>
+    </div>
+    <div class="players">
+        <h3>&{"room.players"}</h3>
+        <ul id="players">
+        </ul>
+    </div>
+    <div class="action">
+    #{a @Games.game(room.name), class: "big-button start"}&{"game.start"}#{/a}
+    #{a @Rooms.leave(room.name), class: "big-button leave"}&{"room.leave"}#{/a}
+    </div>
 
-#{a @Games.game(room.name)}&{"game.start"}#{/a}
+</div>
 
 <script type="text/javascript">
 (function($, window) {
 
-    var lastReceived = 0;
-    var waitMessages = #{jsAction @Rooms.waitState(room.name, ":lastReceived") /}
-    var getMessages = function() {
-        $.ajax({
-            url: waitMessages({ lastReceived: lastReceived }),
-            contentType: "application/json",
-            success: function(events, textStatus) {
-                var event = events[0], room = event.data, players = room.players,
-                    i, n, player, playersContainer = $("#players");
-                playersContainer.empty();
-                for (i = 0, n = players.length; i < n; i++) {
-                    $("<li>" + players[i].name + "</li>").appendTo(playersContainer);
-                }
-                $("#room-status").text(room.status);
-                lastReceived = event.id;
-                getMessages();
-            },
-            error: function(request, textStatus, error) {
-                console.log(textStatus, error);
-            }
-        });
-    }
-    getMessages();
+    var waitEventsAction = #{jsAction @Rooms.waitState(room.name, ":lastReceived") /};
+    new R301.module.Room({
+        waitEventsAction: waitEventsAction,
+        playersContainer: $("#players"),
+        roleSelector: $("#role-selector"),
+        faceRoot: "${play.ctxPath}${play.configuration['rich301.role.url.prefix']}/",
+        roles: [
+            #{list items: roles, as: "role"}
+            { name: "${role.name}", face: "${role.face}" }${role_isLast ? "" : ","}
+            #{/list}
+        ]
+    });
 
 })(jQuery, window)
 </script>
