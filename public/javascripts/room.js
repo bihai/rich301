@@ -14,12 +14,6 @@
         var me = this;
         this.options = $.extend({}, this.options, options);
         this.subscribe();
-        this.options.startButton.click(function() {
-            me.onStartClick();
-        });
-        this.options.leaveButton.click(function() {
-            me.onLeaveClick();
-        });
     }
 
     R301.module.Room.prototype = {
