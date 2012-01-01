@@ -1,15 +1,4 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
-<script>
-	$(function() {
-		var rich = new R301.module.RichMap({
-			background: background,
-			map: map
-		});
-		rich.appendTo(document.body);
-		var game = new R301.module.Game();
-		game.run();
-	});
-</script>
 <h1>&{"welcome"} ${controllers.Secure.Security.connected()}</h1>
 #{a @Rooms.list()}To the hall#{/a}

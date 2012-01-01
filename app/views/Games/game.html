@@ -13,11 +13,10 @@ HERE IS GAME
 </div>
 
 
-
 <script type="text/javascript">
 // Handle events
+var gameId = "${game.id}";
 (function($, window) {
-
     var lastReceived = 0;
     var waitEvents = #{jsAction @Games.waitEvents(game.name, ":lastReceived") /}
     var getEvents = function() {
@@ -36,5 +35,21 @@ HERE IS GAME
     };
     getEvents();
 
+    //begin xiexie
+    var rich = new R301.module.Game({
+		background: background,
+		map: map
+	});
+	
+	rich.appendTo(document.body);
+	rich.run();
+	
+	var shasha = new R301.module.Player({
+		avatar: R301.constants.PUBLIC_PATH + '/data/roles/role_shasha.png',
+		height: 48
+	});
+	
+	R301.module.Action.init();
+    
 })(jQuery, window);
 </script>
