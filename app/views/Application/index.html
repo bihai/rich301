@@ -7,12 +7,8 @@
 			map: map
 		});
 		rich.appendTo(document.body);
-		rich.run();
-		setTimeout(function() {
-			rich.queuePush(function() {
-				console.log('done');
-			});
-		}, 3000);
+		var game = new R301.module.Game();
+		game.run();
 	});
 </script>
 <h1>&{"welcome"} ${controllers.Secure.Security.connected()}</h1>
