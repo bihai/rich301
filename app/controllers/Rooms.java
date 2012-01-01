@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import models.Game;
+import models.GameMap;
+import models.MapGenerator;
 import models.Player;
 import models.Role;
 import models.Room;
@@ -34,29 +37,30 @@ public class Rooms extends Controller {
     }
 
     public static void create(String roomName) {
-        if (Room.exists(roomName) || StringUtils.isBlank(roomName)) {
-            return;
+        if (Room.exists(roomName)) {
+            error(409, "Room already exists.");
         }
         Room room = new Room(roomName);
         String connected = Security.connected();
-        System.out.println(connected);
         Player player = new Player(connected);
         room.join(player);
         room.save();
-        room(roomName);
+        room(room.id);
     }
 
-    public static void join(String roomName) {
+    public static void join(Integer roomId) {
         String connected = Security.connected();
-        Room room = Room.findByName(roomName);
+        Room room = Room.get(roomId);
+        notFoundIfNull(room, "Room not found.");
         Player player = new Player(connected);
         room.join(player);
-        room(roomName);
+        room(room.id);
     }
 
-    public static void leave(String roomName) {
+    public static void leave(Integer roomId) {
         String connected = Security.connected();
-        Room room = Room.findByName(roomName);
+        Room room = Room.get(roomId);
+        notFoundIfNull(room, "Room not found.");
         Player player = room.getPlayer(connected);
         room.leave(player);
         if (room.isEmpty()) {
@@ -65,26 +69,35 @@ public class Rooms extends Controller {
         list();
     }
 
-    public static void selectRole(String roomName, String roleName) {
-        Room room = Room.findByName(roomName);
-        notFoundIfNull(room);
-        Role role = Role.findByName(roleName);
-        notFoundIfNull(role);
+    public static void selectRole(Integer roomId, Integer roleId) {
+        Room room = Room.get(roomId);
+        notFoundIfNull(room, "Room not found.");
+        Role role = Role.get(roleId);
+        notFoundIfNull(role, "Role not found.");
         String connected = Security.connected();
         Player player = room.getPlayer(connected);
         player.role = role;
+        room.publish();
     }
 
-    public static void room(String roomName) {
-        Room room = Room.findByName(roomName);
-        notFoundIfNull(room);
+    public static void room(Integer roomId) {
+        Room room = Room.get(roomId);
+        notFoundIfNull(room, "Room not found.");
         Collection<Role> roles = Role.all();
         render(room, roles);
     }
 
-    public static void waitState(String roomName, Long lastReceived) {
-        Room room = Room.findByName(roomName);
-        notFoundIfNull(room);
+    public static void start(Integer roomId) {
+        Room room = Room.get(roomId);
+        notFoundIfNull(room, "Room not found.");
+        GameMap map = MapGenerator.generateTestMap();
+        Game game = new Game(room, map).save();
+        Games.game(game.id);
+    }
+
+    public static void waitState(Integer roomId, Long lastReceived) {
+        Room room = Room.get(roomId);
+        notFoundIfNull(room, "Room not found.");
         List messages = await(room.nextEvents(lastReceived));
         renderJSON(messages, new TypeToken<List<IndexedEvent<Room>>>() {}.getType());
     }

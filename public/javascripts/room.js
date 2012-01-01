@@ -26,6 +26,12 @@
             waitEventsAction: null,
 
             /**
+             * AJAX method to change role.
+             * @type function
+             */
+            changeRoleAction: null,
+
+            /**
              * Players container element.
              * @type jQuery
              */
@@ -110,11 +116,22 @@
          * @param {object} role Selected role
          */
         onRoleSelected: function(role) {
-            var faceRoot = this.options.faceRoot,
+            var me = this, faceRoot = this.options.faceRoot,
+                changeRoleAction = this.options.changeRoleAction,
                 playersContainer = this.options.playersContainer;
-            playersContainer.find(".me img").attr("src", (faceRoot + role.face));
-            playersContainer.find(".me .role-name").text(role.name);
-            this.options.roleSelector.hide("fast");
+            $.ajax({
+                url: changeRoleAction({ roleId: role.id }),
+                type: "PUT",
+                contentType: "application/json",
+                success: function() {
+                    playersContainer.find(".me img").attr("src", (faceRoot + role.face));
+                    playersContainer.find(".me .role-name").text(role.name);
+                    me.options.roleSelector.hide("fast");
+                },
+                error: function(request, textStatus, error) {
+                    console.log(textStatus, error);
+                }
+            });
         },
 
         /**

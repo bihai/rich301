@@ -29,27 +29,21 @@ import play.mvc.With;
 @With(Secure.class)
 public class Games extends Controller {
 
-    public static void game(String gameName) {
-        Game game = Game.findByName(gameName);
-        if (game == null) {
-            Room room = Room.findByName(gameName);
-            notFoundIfNull(room);
-            GameMap map = MapGenerator.generateTestMap();
-            game = new Game(room, map);
-            game.save();
-        }
+    public static void game(Integer gameId) {
+        Game game = Game.get(gameId);
+        notFoundIfNull(game);
         render(game);
     }
 
-    public static void waitEvents(String gameName, Long lastReceived) {
-        Game game = Game.findByName(gameName);
+    public static void waitEvents(Integer gameId, Long lastReceived) {
+        Game game = Game.get(gameId);
         notFoundIfNull(game);
         List<IndexedEvent<Event>> events = await(Event.nextEvents(lastReceived));
         renderJSON(events, new TypeToken<List<IndexedEvent<Event>>>() {}.getType());
     }
 
-    public static void action(String gameName, String actionName) {
-        Game game = Game.findByName(gameName);
+    public static void action(Integer gameId, String actionName) {
+        Game game = Game.get(gameId);
         notFoundIfNull(game);
         String connected = Security.connected();
         if (!game.validPlayer(connected)) {

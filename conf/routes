@@ -17,16 +17,17 @@ GET     /                                       Application.index
 # Rooms
 GET     /rooms/?                                Rooms.list
 POST    /rooms/?                                Rooms.create
-POST    /rooms/{roomName}/players               Rooms.join
-DELETE  /rooms/{roomName}/players               Rooms.leave
-GET     /rooms/{roomName}/?                     Rooms.room
-PUT     /rooms/{roomName}/players/current/{roleName}    Rooms.selectRole
-GET     /ajax/rooms/{roomName}/state            Rooms.waitState
+POST    /rooms/{roomId}/players                 Rooms.join
+DELETE  /rooms/{roomId}/players                 Rooms.leave
+GET     /rooms/{roomId}/?                       Rooms.room
+POST    /rooms/{roomId}/game                    Rooms.start
+PUT     /ajax/rooms/{roomId}/players/current/{roleId}    Rooms.selectRole
+GET     /ajax/rooms/{roomId}/state              Rooms.waitState
 
 # Game
-GET     /games/{gameName}/?                     Games.game
-GET     /ajax/games/{gameName}/events           Games.waitEvents
-POST    /ajax/games/{gameName}/action/{actionName}         Games.action
+GET     /games/{gameId}/?                       Games.game
+GET     /ajax/games/{gameId}/events             Games.waitEvents
+POST    /ajax/games/{gameId}/action/{actionName}         Games.action
 
 # Maps
 GET     /maps/random                            Maps.random

@@ -10,6 +10,7 @@ import java.util.Set;
 import play.libs.F.ArchivedEventStream;
 import play.libs.F.IndexedEvent;
 import play.libs.F.Promise;
+import util.IdGenerator;
 
 /**
  * Game module.
@@ -19,10 +20,12 @@ import play.libs.F.Promise;
  */
 public class Room {
 
-    private static Map<String, Room> store = new HashMap<String, Room>();
+    private static Map<Integer, Room> STORE = new HashMap<Integer, Room>();
 
     transient private final ArchivedEventStream<Room> events = new ArchivedEventStream<Room>(100);
     
+    public Integer id;
+
     public String name;
 
     public Set<Player> players;
@@ -30,6 +33,7 @@ public class Room {
     public Status status;
 
     public Room(String name) {
+        this.id = IdGenerator.generate();
         this.name = name;
         this.status = Status.WAITING;
     }
@@ -51,7 +55,7 @@ public class Room {
             players = new HashSet<Player>();
         }
         players.add(player);
-        events.publish(this);
+        publish();
     }
 
     public void leave(Player player) {
@@ -59,7 +63,7 @@ public class Room {
             return;
         }
         players.remove(player);
-        events.publish(this);
+        publish();
     }
 
     public boolean isEmpty() {
@@ -67,11 +71,15 @@ public class Room {
     }
 
     public void save() {
-        store.put(name, this);
+        STORE.put(id, this);
     }
 
     public void delete() {
-        store.remove(this);
+        STORE.remove(id);
+    }
+
+    public void publish() {
+        events.publish(this);
     }
 
     public Promise<List<IndexedEvent<Room>>> nextEvents(long lastReceived) {
@@ -79,15 +87,20 @@ public class Room {
     }
 
     public static Collection<Room> all() {
-        return store.values();
+        return STORE.values();
     }
 
-    public static Room findByName(String name) {
-        return store.get(name);
+    public static Room get(Integer id) {
+        return STORE.get(id);
     }
 
     public static boolean exists(String name) {
-        return store.containsKey(name);
+        for (Room room : STORE.values()) {
+            if (room.name.equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static enum Status {

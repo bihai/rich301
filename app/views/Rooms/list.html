@@ -13,7 +13,7 @@
     #{list items:rooms, as:"room"}
     <li class="room">
     ${room.name} : ${room.players?.size()}
-    #{a @Rooms.join(room.name)}&{"room.join"}#{/a}
+    #{a @Rooms.join(room.id)}&{"room.join"}#{/a}
     </li>
     #{/list}
 </ul>

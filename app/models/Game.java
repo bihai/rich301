@@ -6,10 +6,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import play.libs.F.ArchivedEventStream;
 import play.libs.F.IndexedEvent;
 import play.libs.F.Promise;
+import util.IdGenerator;
 import util.RichUtil;
 
 /**
@@ -20,7 +22,9 @@ import util.RichUtil;
  */
 public class Game {
 
-    private static Map<String, Game> store = new HashMap<String, Game>();
+    private static final Map<Integer, Game> STORE = new HashMap<Integer, Game>();
+
+    public Integer id;
 
     public String name;
 
@@ -33,6 +37,7 @@ public class Game {
     public int round;
 
     public Game(Room room, GameMap map) {
+        id = IdGenerator.generate();
         this.name = room.name;
         for (Player player : room.players) {
             players.add(player);
@@ -42,16 +47,13 @@ public class Game {
         Event.events.publish(new StartEvent());
     }
 
-    public void save() {
-        store.put(name, this);
+    public Game save() {
+        STORE.put(id, this);
+        return this;
     }
 
-    public static Game findByName(String name) {
-        return store.get(name);
-    }
-
-    public static boolean exists(String name) {
-        return store.containsKey(name);
+    public static Game get(Integer id) {
+        return STORE.get(id);
     }
     
     public boolean validPlayer(String connected) {
@@ -118,7 +120,6 @@ public class Game {
 
     }
     
-    
     class NextPlayerEvent extends Event {
         
         public  final String playerName;
@@ -128,5 +129,5 @@ public class Game {
         }
         
     }
-    
+
 }

@@ -1,6 +1,7 @@
 package models;
 
 import exception.GameException;
+import util.IdGenerator;
 import util.RichUtil;
 
 /**
@@ -10,6 +11,8 @@ import util.RichUtil;
  *
  */
 public class Player {
+
+    public Integer id;
 
     public String name;
 
@@ -26,11 +29,12 @@ public class Player {
     }
 
     public Player(String name, Role role) {
+        this.id = IdGenerator.generate();
         this.name = name;
         this.role = role;
         this.cash = DEFAULT_CASH;
     }
-    
+
     /**
      * Random a start position for the player in the given map.
      * The cell id would be set to the value of the cell.

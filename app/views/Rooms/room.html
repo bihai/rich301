@@ -24,8 +24,8 @@
         </ul>
     </div>
     <div class="action">
-    #{a @Games.game(room.name), class: "big-button start"}&{"game.start"}#{/a}
-    #{a @Rooms.leave(room.name), class: "big-button leave"}&{"room.leave"}#{/a}
+    #{a @Rooms.start(room.id), class: "big-button start"}&{"game.start"}#{/a}
+    #{a @Rooms.leave(room.id), class: "big-button leave"}&{"room.leave"}#{/a}
     </div>
 
 </div>
@@ -33,15 +33,17 @@
 <script type="text/javascript">
 (function($, window) {
 
-    var waitEventsAction = #{jsAction @Rooms.waitState(room.name, ":lastReceived") /};
+    var waitEventsAction = #{jsAction @Rooms.waitState(room.id, ":lastReceived") /};
+    var changeRoleAction = #{jsAction @Rooms.selectRole(room.id, ":roleId") /}
     new R301.module.Room({
         waitEventsAction: waitEventsAction,
+        changeRoleAction: changeRoleAction,
         playersContainer: $("#players"),
         roleSelector: $("#role-selector"),
         faceRoot: "${play.ctxPath}${play.configuration['rich301.role.url.prefix']}/",
         roles: [
             #{list items: roles, as: "role"}
-            { name: "${role.name}", face: "${role.face}" }${role_isLast ? "" : ","}
+            { id: ${role.id}, name: "${role.name}", face: "${role.face}" }${role_isLast ? "" : ","}
             #{/list}
         ]
     });
