@@ -15,7 +15,7 @@ import util.IdGenerator;
  */
 public class Role {
 
-    public static final Role RANDOM = new EmptyRole(); 
+    public static final Role RANDOM = new RandomRole(); 
 
     private static final Map<Integer, Role> STORE = new HashMap<Integer, Role>();
 
@@ -31,6 +31,10 @@ public class Role {
         this.face = face;
     }
 
+    public boolean isRandom() {
+        return false;
+    }
+
     public void save() {
         STORE.put(id, this);
     }
@@ -43,10 +47,19 @@ public class Role {
         return STORE.values();
     }
 
-    public static class EmptyRole extends Role {
+    public static class RandomRole extends Role {
 
-        public EmptyRole() {
-            super(Messages.get("room.role.random"), "role_random.png");
+        public RandomRole() {
+            super(null, "role_random.png");
+        }
+
+        public String getName() {
+            return Messages.get("room.role.random");            
+        }
+
+        @Override
+        public boolean isRandom() {
+            return true;
         }
 
     }
