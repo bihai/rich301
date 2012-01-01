@@ -2,7 +2,7 @@ package models;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Map;
 
 import play.i18n.Messages;
 import util.IdGenerator;
@@ -15,9 +15,9 @@ import util.IdGenerator;
  */
 public class Role {
 
-    public static final Role RANDOM = new EmptyRole();
+    public static final Role RANDOM = new EmptyRole(); 
 
-    private static final java.util.Map<Integer, Role> STORE = new HashMap<Integer, Role>();
+    private static final Map<Integer, Role> STORE = new HashMap<Integer, Role>();
 
     public Integer id;
 

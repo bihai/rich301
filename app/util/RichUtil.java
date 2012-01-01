@@ -1,11 +1,15 @@
 package util;
 
+import java.util.List;
 import java.util.Random;
+
+import play.libs.F.IndexedEvent;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import models.Cell;
+import models.Event;
 import models.GameMap;
 
 public class RichUtil {
@@ -31,6 +35,14 @@ public class RichUtil {
         builder.setExclusionStrategies(new GsonUtils.GsonPropertyExclusionStrategy());
         Gson gson = builder.create();
         return gson.toJson(gameMap);
+    }
+    
+    
+    public static String eventsToJson(List<IndexedEvent<Event>> events) {
+        GsonBuilder builder = new GsonBuilder();
+        builder.setExclusionStrategies(new GsonUtils.GsonPropertyExclusionStrategy());
+        Gson gson = builder.create();
+        return gson.toJson(events);
     }
 
     /**

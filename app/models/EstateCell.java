@@ -36,7 +36,7 @@ public class EstateCell extends Cell {
         Event.events.publish(new OwnerChangeEvent(player.name));
     }
     
-    class OwnerChangeEvent extends Event {
+    static class OwnerChangeEvent extends Event {
         
         public final String ownerName;
         

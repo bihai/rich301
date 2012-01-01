@@ -2,17 +2,10 @@ package models;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import play.libs.F.ArchivedEventStream;
-import play.libs.F.IndexedEvent;
-import play.libs.F.Promise;
 import util.IdGenerator;
-import util.RichUtil;
 
 /**
  * Game model.
@@ -44,7 +37,7 @@ public class Game {
             player.randomStart(map);
         }
         this.nextPlayer();
-        Event.events.publish(new StartEvent());
+        Event.events.publish(new StartEvent(this));
     }
 
     public Game save() {
@@ -116,13 +109,18 @@ public class Game {
         public abstract void doAction(Game currentGame);
     }
 
-    class StartEvent extends Event {
+    static class StartEvent extends Event {
 
+        public final Game game;
+        
+        public StartEvent(Game game) {
+            this.game = game;
+        }
     }
     
-    class NextPlayerEvent extends Event {
+    static class NextPlayerEvent extends Event {
         
-        public  final String playerName;
+        public final String playerName;
         
         public NextPlayerEvent(String playerName) {
             this.playerName = playerName;
