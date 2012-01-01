@@ -1,7 +1,7 @@
 package models;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import play.i18n.Messages;
@@ -17,7 +17,7 @@ public class Role {
 
     public static final Role RANDOM = new RandomRole(); 
 
-    private static final Map<Integer, Role> STORE = new HashMap<Integer, Role>();
+    private static final Map<Integer, Role> STORE = new LinkedHashMap<Integer, Role>();
 
     public Integer id;
 
