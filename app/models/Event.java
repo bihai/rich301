@@ -9,12 +9,6 @@ import util.RichUtil;
 
 public class Event {
 
-    public static final ArchivedEventStream<Event> events = new ArchivedEventStream<Event>(100);
-
-    public static Promise<List<IndexedEvent<Event>>> nextEvents(long lastReceived) {
-        return events.nextEvents(lastReceived);
-    }
-    
     public final String type = getClass().getSimpleName();
-    
+
 }

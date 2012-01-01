@@ -38,7 +38,7 @@ public class Games extends Controller {
     public static void waitEvents(Integer gameId, Long lastReceived) {
         Game game = Game.get(gameId);
         notFoundIfNull(game);
-        List<IndexedEvent<Event>> events = await(Event.nextEvents(lastReceived));
+        List<IndexedEvent<Event>> events = await(game.nextEvents(lastReceived));
         String eventsJson = RichUtil.eventsToJson(events);
         renderJSON(eventsJson);
     }

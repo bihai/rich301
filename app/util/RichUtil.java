@@ -8,14 +8,23 @@ import play.libs.F.IndexedEvent;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 
 import models.Cell;
 import models.Event;
+import models.Game;
 import models.GameMap;
+import models.Player;
 
 public class RichUtil {
 
+    public static GsonBuilder builder = new GsonBuilder();
     /**
      * Retrieve the id of a cell in the map.
      * @param gameMap The given map.
@@ -33,16 +42,12 @@ public class RichUtil {
      * @return The json string represents the map object.
      */
     public static String mapToJson(GameMap gameMap) {
-        GsonBuilder builder = new GsonBuilder();
-        builder.setExclusionStrategies(new GsonUtils.GsonPropertyExclusionStrategy());
         Gson gson = builder.create();
         return gson.toJson(gameMap);
     }
     
     
     public static String eventsToJson(List<IndexedEvent<Event>> events) {
-        GsonBuilder builder = new GsonBuilder();
-        builder.setExclusionStrategies(new GsonUtils.GsonPropertyExclusionStrategy());
         Gson gson = builder.create();
         return gson.toJson(events, new TypeToken<List<IndexedEvent<Event>>>() {}.getType());
     }
@@ -73,4 +78,6 @@ public class RichUtil {
             }
         }
     }
+    
+
 }

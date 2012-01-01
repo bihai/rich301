@@ -1,5 +1,13 @@
 package models;
 
+import java.lang.reflect.Type;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
 import exception.GameException;
 import util.IdGenerator;
 import util.RichUtil;
@@ -20,7 +28,7 @@ public class Player {
     
     public Cell currentCell;
     
-    public Integer currentCellId;
+    public Game game;
 
     public int cash;
     
@@ -44,7 +52,6 @@ public class Player {
      */
     public void randomStart(GameMap map) {
         currentCell = RichUtil.randomCell(map);
-        currentCellId = currentCell.id;
     }
     
     /**
@@ -54,7 +61,7 @@ public class Player {
      */
     public int roll() {
         DiceEvent diceEvent = new DiceEvent();
-        Event.events.publish(diceEvent);
+        game.events.publish(diceEvent);
         return diceEvent.value;
     }
     
@@ -68,13 +75,12 @@ public class Player {
     public void move(int step) {
         while (step-- > 0) {
             currentCell = currentCell.next;
-            currentCellId = currentCell.id;
             if (currentCell == null) {
                 throw new GameException("Cannot move to the target cell");
             }
         }
         MoveEvent moveEvent = new MoveEvent(step);
-        Event.events.publish(moveEvent);
+        game.events.publish(moveEvent);
     }
     
     /**
@@ -93,8 +99,10 @@ public class Player {
             throw new GameException("Not enough money to buy this cell");
         }
         this.cash -= estateCell.price;
-        Event.events.publish(new CashChangeEvent(-estateCell.price, this.name));
+        game.events.publish(new CashChangeEvent(-estateCell.price, this.name));
         estateCell.changeOwner(this);
+        game.events.publish(new OwnerChangeEvent(this.name));
+
     }
     
     /**
@@ -108,9 +116,9 @@ public class Player {
         if (currentCell != null && currentCell.needPass() && !((EstateCell)currentCell).owner.equals(this)) {
             EstateCell estateCell = (EstateCell)currentCell;
             this.cash -= estateCell.price;
-            Event.events.publish(new CashChangeEvent(-estateCell.price, this.name));
+            game.events.publish(new CashChangeEvent(-estateCell.price, this.name));
             estateCell.owner.cash += estateCell.price;
-            Event.events.publish(new CashChangeEvent(estateCell.price, estateCell.owner.name));
+            game.events.publish(new CashChangeEvent(estateCell.price, estateCell.owner.name));
         }
     }
     
@@ -179,6 +187,34 @@ public class Player {
             this.playerName = playerName;
         }
         
+    }
+    
+    static class OwnerChangeEvent extends Event {
+        
+        public final String ownerName;
+        
+        public OwnerChangeEvent(String ownerName) {
+            this.ownerName = ownerName;
+        }
+    }
+    
+    public static class Serializer implements JsonSerializer<Player> {
+
+        @Override
+        public JsonElement serialize(Player src, Type type,
+                JsonSerializationContext ctx) {
+            JsonObject playerObject = new JsonObject();
+            playerObject.add("id", new JsonPrimitive(src.id));
+            playerObject.add("name", new JsonPrimitive(src.name));
+            playerObject.add("role", ctx.serialize(src.role));
+            playerObject.add("currentCellId", new JsonPrimitive(src.currentCell.id));
+            playerObject.add("cash", new JsonPrimitive(src.cash));
+            return playerObject;
+        }
+    }
+    
+    static {
+        RichUtil.builder.registerTypeAdapter(Player.class, new Serializer());
     }
 
 }

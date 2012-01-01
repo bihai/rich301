@@ -1,11 +1,25 @@
 package models;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import models.Player.Serializer;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
+import play.libs.F.ArchivedEventStream;
+import play.libs.F.IndexedEvent;
+import play.libs.F.Promise;
+
 import util.IdGenerator;
+import util.RichUtil;
 
 /**
  * Game model.
@@ -28,7 +42,13 @@ public class Game {
     public GameMap gameMap;
     
     public int round;
+    
+    public final ArchivedEventStream<Event> events = new ArchivedEventStream<Event>(100);
 
+    public Promise<List<IndexedEvent<Event>>> nextEvents(long lastReceived) {
+        return events.nextEvents(lastReceived);
+    }
+    
     public Game(Room room) {
         id = IdGenerator.generate();
         this.name = room.name;
@@ -36,8 +56,9 @@ public class Game {
         for (Player player : room.players) {
             players.add(player);
             player.randomStart(gameMap);
+            player.game = this;
         }
-        Event.events.publish(new StartEvent(this));
+        this.events.publish(new StartEvent(this));
         this.nextPlayer();
     }
 
@@ -70,7 +91,7 @@ public class Game {
             currentPlayer = players.get((currentIndex + 1) % players.size());
             round++;
         }
-        Event.events.publish(new NextPlayerEvent(currentPlayer.name));
+        this.events.publish(new NextPlayerEvent(currentPlayer.name));
     }
     
     public enum Action {
@@ -128,5 +149,24 @@ public class Game {
         }
         
     }
+    
+    public static class Serializer implements JsonSerializer<Game> {
 
+        @Override
+        public JsonElement serialize(Game src, Type type,
+                JsonSerializationContext ctx) {
+            JsonObject gameObject = new JsonObject();
+            gameObject.add("id", new JsonPrimitive(src.id));
+            gameObject.add("name", new JsonPrimitive(src.name));
+            gameObject.add("players", ctx.serialize(src.players));
+            gameObject.add("currentPlayer", ctx.serialize(src.currentPlayer));
+            gameObject.add("gameMap", ctx.serialize(src.gameMap));
+            gameObject.add("round", new JsonPrimitive(src.round));
+            return gameObject;
+        }
+    }
+
+    static {
+        RichUtil.builder.registerTypeAdapter(Game.class, new Serializer());
+    }
 }

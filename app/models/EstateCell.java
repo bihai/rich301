@@ -1,5 +1,15 @@
 package models;
 
+import java.lang.reflect.Type;
+
+import models.Player.Serializer;
+import util.RichUtil;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.Expose;
 
 public class EstateCell extends Cell {
@@ -33,21 +43,36 @@ public class EstateCell extends Cell {
      */
     public void changeOwner(Player player) {
         this.owner = player;
-        Event.events.publish(new OwnerChangeEvent(player.name));
     }
     
-    static class OwnerChangeEvent extends Event {
-        
-        public final String ownerName;
-        
-        public OwnerChangeEvent(String ownerName) {
-            this.ownerName = ownerName;
-        }
-    }
-
     @Override
     public boolean needPass() {
         return true;
     }
 
+    public static class Serializer implements JsonSerializer<EstateCell> {
+
+        @Override
+        public JsonElement serialize(EstateCell src, Type type,
+                JsonSerializationContext ctx) {
+            JsonObject cellObject = new JsonObject();
+            cellObject.add("id", new JsonPrimitive(src.id));
+            cellObject.add("nextId", new JsonPrimitive(src.next.id));
+            cellObject.add("previousId", ctx.serialize(src.previous.id));
+            cellObject.add("roadName", new JsonPrimitive(src.roadName));
+            cellObject.add("cellName", new JsonPrimitive(src.cellName));
+            cellObject.add("size", new JsonPrimitive(src.size));
+            cellObject.add("type", new JsonPrimitive(src.type));
+            cellObject.add("level", new JsonPrimitive(src.level));
+            cellObject.add("price", new JsonPrimitive(src.price));
+            if (src.owner != null) {
+                cellObject.add("owner", new JsonPrimitive(src.owner.name));
+            }
+            return cellObject;
+        }
+    }
+    
+    static {
+        RichUtil.builder.registerTypeAdapter(EstateCell.class, new Serializer());
+    }
 }
