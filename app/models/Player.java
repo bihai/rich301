@@ -18,7 +18,7 @@ public class Player {
 
     public Role role;
     
-    public Cell currentCell;
+    public Integer currentCellId;
 
     public int cash;
     
@@ -41,7 +41,7 @@ public class Player {
      * @param map The given map.
      */
     public void randomStart(GameMap map) {
-        currentCell = RichUtil.randomCell(map);
+        currentCellId = RichUtil.randomCell(map).id;
     }
     
     /**

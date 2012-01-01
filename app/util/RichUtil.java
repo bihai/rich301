@@ -8,6 +8,7 @@ import play.libs.F.IndexedEvent;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import models.Cell;
 import models.Event;
@@ -39,11 +40,11 @@ public class RichUtil {
     }
     
     
-    public static String eventsToJson(List<IndexedEvent<Event>> events, Type type) {
+    public static String eventsToJson(List<IndexedEvent<Event>> events) {
         GsonBuilder builder = new GsonBuilder();
         builder.setExclusionStrategies(new GsonUtils.GsonPropertyExclusionStrategy());
         Gson gson = builder.create();
-        return gson.toJson(events, type);
+        return gson.toJson(events, new TypeToken<List<IndexedEvent<Event>>>() {}.getType());
     }
 
     /**
