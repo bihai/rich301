@@ -164,12 +164,8 @@
 		roll: function() {},
 		bug: function() {},
 		run: function() {},
-		born: function(players) {
-			
-		},
 		playerReady: function() {
-			$('<div></div>').bind('startGame', function(event, game) {
-				console.log(12)
+			$(window).bind('startGame', function(event, game) {
 				var players = game.players,
 					gameMap = game.gameMap,
 					i = 0, len = players.length,

@@ -27,11 +27,16 @@ var gameId = "${game.id}";
     
     R301.module.Action.playerReady();
 	R301.module.Action.startGame(function(events, textStatus) {
-	    var event = events[0], data = event.data;
-
-	    if (data.type == "StartEvent") {
-            $(window).trigger('startGame', [data.game]);
-	    }
+		var i = 0, len = events.length;
+		while(i < len) {
+			var event = events[i],
+				data = event.data;
+			if (data.type == "StartEvent") {
+	            $(window).trigger('startGame', [data.game]);
+		    }
+			i++;
+		}
+	    
 	});
     
 })(jQuery, window);
