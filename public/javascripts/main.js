@@ -1,5 +1,4 @@
 (function() {
-	
 	var Game = function(settings) {
 		settings = $.extend({
 				gridWidth: 64,
@@ -8,31 +7,22 @@
 				map: '',
 				fps: 25
 			}, settings);
+		
 		if(!settings.background || !settings.map) {
 			throw new errors('this map photo is not exist!');
 			return;
 		}
+		
 		var	me = this,
-			bgCanvas = document.createElement('canvas'),
 			canvas = document.createElement('canvas'),
-			bctx = bgCanvas.getContext('2d'),
-			ctx = canvas.getContext('2d'),
-			img = document.createElement('img');
+			ctx = canvas.getContext('2d');
 		
-		img.addEventListener('load', function() {
-			bgCanvas.width = this.width;
-			bgCanvas.height = this.height;
-			canvas.width = this.width;
-			canvas.height = this.height;
-			bctx.drawImage(this, 0, 0);
-		});
-		
-		img.src = settings.background;
-		this.bgCanvas = bgCanvas;
 		this.canvas = canvas;              
 		this.ctx = ctx;
 		this.queue = [];
+		this.actions = [];
 		this.settings = settings;
+		this.interval = 1000 / settings.fps;
 	};
 	
 	Game.prototype = {
@@ -40,15 +30,32 @@
 			el = typeof el === 'string' ? document.getElementById(el) : el;
 			el.appendChild(this.canvas);
 		},
-		refresh: function() {
-			this.ctx.drawImage(this.bgCanvas, 0, 0);
-		},
 		queuePush: function(fn) {
 			this.queue.push(fn);
 		},
+		registAction: function(fn) {
+			this.actions.push(fn);
+		},
+		init: function() {
+			var img = document.createElement('img'),
+				canvas = this.canvas,
+				ctx = this.ctx,
+				me = this;
+			
+			img.addEventListener('load', function() {
+				var i = 0, actions = me.actions, len = actions.length;
+				canvas.width = this.width;
+				canvas.height = this.height;
+				ctx.drawImage(this, 0, 0);
+				for(i; i < len; i++) {
+					actions[i]();
+				}
+			});
+			
+			img.src = this.settings.background;
+		},
 		run: function() {
-			var me = this,
-				interval = 1000 / me.settings.fps;
+			var me = this;
 			setInterval(function() {
 				var t;
 				if(me.queue.length > 0) {
@@ -57,7 +64,10 @@
 						t.constructor === Function && t();
 					}
 				}
-			}, interval);
+			}, this.interval);
+		},
+		draw: function(canvas, dx, dy) {
+			this.ctx.drawImage(canvas, dx, dy);
 		}
 	};
 	
@@ -65,7 +75,9 @@
 		settings = $.extend({
 			avatar: '',
 			height: '',
-			width: ''
+			width: '',
+			x: '',
+			y: ''
 		}, settings);
 		var player = document.createElement('canvas'),
 			avatar = document.createElement('img'),
@@ -80,9 +92,11 @@
 			ctx.drawImage(avatar, 0, 0);
 		});
 		
-		avatar = settings.avatar;
+		avatar.src = settings.avatar;
 		
 		this.player = player;
+		this.settings = settings;
+		this.position = { x: settings.x, y: settings.y };
 	};
 	
 	Player.prototype = {
@@ -100,25 +114,34 @@
 		},
 		run: function() {
 			
+		},
+		getPosition: function() {
+			return this.position;
+		},
+		setPosition: function(opt) {
+			this.position = opt;
 		}
 	};
 	
 	var Action = {
-		init: function() {
+		init: function(fn) {
 			$.ajax({
                 url: '/ajax/games/'+ gameId +'/events?lastReceived=0',
                 contentType: "application/json",
                 success: function(events, textStatus) {
-                   console.log(events, textStatus);
+                	fn && fn(events, textStatus);
                 },
                 error: function(request, textStatus, error) {
-                    console.log(123123);
+                	
                 }
             });
 		},
 		roll: function() {},
 		bug: function() {},
-		run: function() {}
+		run: function() {},
+		born: function(players) {
+			
+		}
 	}
 	
 	R301.module.Game = Game;
