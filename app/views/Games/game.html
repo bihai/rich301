@@ -17,39 +17,63 @@ HERE IS GAME
 // Handle events
 var gameId = "${game.id}";
 (function($, window) {
-    var lastReceived = 0;
-    var waitEvents = #{jsAction @Games.waitEvents(game.name, ":lastReceived") /}
-    var getEvents = function() {
-        $.ajax({
-            url: waitEvents({ lastReceived: lastReceived }),
-            contentType: "application/json",
-            success: function(events, textStatus) {
-                console.log(events);
-                lastReceived = events[0].id;
-                getEvents();
-            },
-            error: function(request, textStatus, error) {
-                console.log(textStatus, error);
-            }
-        });
-    };
-    getEvents();
-
-    //begin xiexie
-    var rich = new R301.module.Game({
-		background: background,
-		map: map
+	
+    var playList = [];
+	    
+	R301.module.Action.init(function(events, textStatus) {
+		
+		console.log(events);
+		
+		var data = events[0].data.game,
+			players = data.players,
+			gameMap = data.gameMap,
+			i = 0, len = players.length,
+			x = 0, y = 0, player = null,
+			avatarPath = R301.constants.PUBLIC_PATH + '/data/roles/',
+			game = new R301.module.Game({
+				background: background,
+				map: gameMap.mapCells
+			});
+	    
+		for(i; i < len; i++) {
+			player = players[i];
+			
+			x = parseInt(player.currentCellId / gameMap.height);
+			y = player.currentCellId % gameMap.height;
+			
+			var p = new R301.module.Player({
+				avatar: avatarPath + player.role.face,
+				width: 128, 
+				height: 128,
+				x: x,
+				y: y
+			});
+			
+			playList.push(p);
+			game.registAction(function() {
+				game.draw(p.getPlayer(), x * cellWidth, y * cellHeight);
+			});
+		};
+		
+		game.init();
+		game.appendTo(document.body);
+	    game.run();
 	});
-	
-	rich.appendTo(document.body);
-	rich.run();
-	
-	var shasha = new R301.module.Player({
-		avatar: R301.constants.PUBLIC_PATH + '/data/roles/role_shasha.png',
-		height: 48
-	});
-	
-	R301.module.Action.init();
     
 })(jQuery, window);
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
