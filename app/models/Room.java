@@ -25,7 +25,7 @@ public class Room {
 
     private static Map<Integer, Room> STORE = new HashMap<Integer, Room>();
 
-    transient private final ArchivedEventStream<Room> events = new ArchivedEventStream<Room>(100);
+    transient private final ArchivedEventStream<Room.Event> events = new ArchivedEventStream<Room.Event>(100);
 
     public Integer id;
 
@@ -58,7 +58,7 @@ public class Room {
             players = new HashSet<Player>();
         }
         players.add(player);
-        publish();
+        onPlayerChange();
     }
 
     public void leave(Player player) {
@@ -66,7 +66,7 @@ public class Room {
             return;
         }
         players.remove(player);
-        publish();
+        onPlayerChange();
     }
 
     public boolean isEmpty() {
@@ -84,23 +84,15 @@ public class Room {
     public void startGame() {
         status = Status.PLAYING;
         new Game(this).save();
-        publish();
+        events.publish(new StateChangeEvent(this));
     }
 
-    public void publish() {
-        events.publish(this);
+    public void onPlayerChange() {
+        events.publish(new PlayerChangeEvent(this));
     }
 
-    public Promise<List<IndexedEvent<Room>>> nextEvents(long lastReceived) {
+    public Promise<List<IndexedEvent<Room.Event>>> nextEvents(long lastReceived) {
         return events.nextEvents(lastReceived);
-    }
-
-    public String toJson() {
-        JsonObject object = new JsonObject();
-        object.addProperty("id", id);
-        object.addProperty("name", name);
-        object.addProperty("status", status.toString());
-        return object.toString();
     }
 
     public static Collection<Room> all() {
@@ -118,6 +110,43 @@ public class Room {
             }
         }
         return false;
+    }
+
+    abstract public static class Event {
+
+        public final String eventType = getClass().getSimpleName();
+
+        public final Integer id;
+
+        public final String name;
+
+        public Event(Integer id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+    }
+
+    public static class StateChangeEvent extends Event {
+        
+        public final String status;
+
+        public StateChangeEvent(Room room) {
+            super(room.id, room.name);
+            this.status = room.status.toString();
+        }
+
+    }
+
+    public static class PlayerChangeEvent extends Event {
+
+        public final Set<Player> players;
+
+        public PlayerChangeEvent(Room room) {
+            super(room.id, room.name);
+            this.players = room.players;
+        }
+
     }
 
     public static enum Status {

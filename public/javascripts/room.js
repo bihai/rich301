@@ -119,23 +119,28 @@
          */
         subscribe: function() {
             var lastReceived = 0, waitEventsAction = this.options.waitEventsAction,
-                me = this;
+                gameAction = this.options.gameAction, me = this;
             var getMessages = function() {
                 $.ajax({
                     url: waitEventsAction({ lastReceived: lastReceived }),
                     contentType: "application/json",
                     success: function(events, textStatus) {
-                        var event = events[0], room = event.data, roles;
-                        if (room.status == "PLAYING") {
-                            location.href = gameAction({ gameId: room.id });
-                            return;
-                        }
-                        // XXX response may only include changed part of whole state in the future
-                        me.onPlayerUpdated(room.players);
-                        me.onStatusUpdated(room.status);
-                        roles = me._getUnselectedRoles(room.players);
-                        me.onRoleUpdated(roles);
-                        lastReceived = event.id;
+                        $.each(events, function(i, event) {
+                            var room = event.data, roles, type = room.eventType;
+                            if (type == "StateChangeEvent") {
+                                if (room.status == "PLAYING") {
+                                    location.href = gameAction({ gameId: room.id });
+                                    return;
+                                }
+                                me.onStatusUpdated(room.status);
+                            }
+                            else if (type == "PlayerChangeEvent") {
+                                me.onPlayerUpdated(room.players);
+                                roles = me._getUnselectedRoles(room.players);
+                                me.onRoleUpdated(roles);
+                            }
+                            lastReceived = event.id;
+                        });
                         getMessages();
                     },
                     error: function(request, textStatus, error) {

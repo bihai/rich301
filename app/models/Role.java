@@ -41,10 +41,6 @@ public class Role {
         STORE.put(id, this);
     }
 
-    public JsonElement toJson() {
-        return new Gson().toJsonTree(this);
-    }
-
     public static Role get(Integer id) {
         return STORE.get(id);
     }
