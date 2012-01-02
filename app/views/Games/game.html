@@ -27,7 +27,7 @@ var gameId = "${game.id}";
     
     R301.module.Action.playerReady();
 	R301.module.Action.startGame(function(events, textStatus) {
-	    var event = events[events.length - 1], data = event.data;
+	    var event = events[0], data = event.data;
 
 	    if (data.type == "StartEvent") {
             $(window).trigger('startGame', [data.game]);
