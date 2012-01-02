@@ -54,7 +54,7 @@ public class Role {
         }
 
         public String getName() {
-            return Messages.get("room.role.random");            
+            return Messages.get("room.role.random");
         }
 
         @Override

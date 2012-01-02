@@ -1,6 +1,12 @@
+import models.Cell;
+import models.EstateCell;
+import models.Game;
+import models.Player;
 import models.Role;
+import models.Player.Serializer;
 import play.jobs.Job;
 import play.jobs.OnApplicationStart;
+import util.RichUtil;
 
 
 /**
@@ -15,6 +21,7 @@ public class Bootstrap extends Job {
     @Override
     public void doJob() throws Exception {
         // Initialize roles 
+        initJsonSerializer();
         new Role("蜗总", "role_wo.png").save();
         new Role("莎莎", "role_shasha.png").save();
         new Role("指甲", "role_lion.png").save();
@@ -24,4 +31,10 @@ public class Bootstrap extends Job {
         new Role("安仔", "role_360.png").save();
     }
 
+    private void initJsonSerializer() {
+        RichUtil.builder.registerTypeAdapter(Player.class, new Game.Serializer());
+        RichUtil.builder.registerTypeAdapter(Player.class, new Player.Serializer());
+        RichUtil.builder.registerTypeAdapter(Player.class, new Cell.Serializer());
+        RichUtil.builder.registerTypeAdapter(Player.class, new EstateCell.Serializer());
+    }
 }
