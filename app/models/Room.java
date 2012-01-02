@@ -12,6 +12,9 @@ import play.libs.F.IndexedEvent;
 import play.libs.F.Promise;
 import util.IdGenerator;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 /**
  * Game module.
  * 
@@ -22,8 +25,8 @@ public class Room {
 
     private static Map<Integer, Room> STORE = new HashMap<Integer, Room>();
 
-    transient private final ArchivedEventStream<Room> events = new ArchivedEventStream<Room>(100);
-    
+    transient private final ArchivedEventStream<Room.Event> events = new ArchivedEventStream<Room.Event>(100);
+
     public Integer id;
 
     public String name;
@@ -55,7 +58,7 @@ public class Room {
             players = new HashSet<Player>();
         }
         players.add(player);
-        publish();
+        onPlayerChange();
     }
 
     public void leave(Player player) {
@@ -63,7 +66,7 @@ public class Room {
             return;
         }
         players.remove(player);
-        publish();
+        onPlayerChange();
     }
 
     public boolean isEmpty() {
@@ -78,11 +81,17 @@ public class Room {
         STORE.remove(id);
     }
 
-    public void publish() {
-        events.publish(this);
+    public void startGame() {
+        status = Status.PLAYING;
+        new Game(this).save();
+        events.publish(new StateChangeEvent(this));
     }
 
-    public Promise<List<IndexedEvent<Room>>> nextEvents(long lastReceived) {
+    public void onPlayerChange() {
+        events.publish(new PlayerChangeEvent(this));
+    }
+
+    public Promise<List<IndexedEvent<Room.Event>>> nextEvents(long lastReceived) {
         return events.nextEvents(lastReceived);
     }
 
@@ -101,6 +110,43 @@ public class Room {
             }
         }
         return false;
+    }
+
+    abstract public static class Event {
+
+        public final String eventType = getClass().getSimpleName();
+
+        public final Integer id;
+
+        public final String name;
+
+        public Event(Integer id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+    }
+
+    public static class StateChangeEvent extends Event {
+        
+        public final String status;
+
+        public StateChangeEvent(Room room) {
+            super(room.id, room.name);
+            this.status = room.status.toString();
+        }
+
+    }
+
+    public static class PlayerChangeEvent extends Event {
+
+        public final Set<Player> players;
+
+        public PlayerChangeEvent(Room room) {
+            super(room.id, room.name);
+            this.players = room.players;
+        }
+
     }
 
     public static enum Status {

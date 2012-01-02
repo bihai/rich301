@@ -2,6 +2,9 @@ package models;
 
 import java.lang.reflect.Type;
 
+import util.IdGenerator;
+import util.RichUtil;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -9,8 +12,6 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import exception.GameException;
-import util.IdGenerator;
-import util.RichUtil;
 
 /**
  * Player model.
@@ -37,7 +38,7 @@ public class Player {
     public long lastActive;
     
     private static final int DEFAULT_CASH = 10008;
-    
+
     public Player(String name) {
         this(name, Role.RANDOM);
     }

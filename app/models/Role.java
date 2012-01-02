@@ -4,8 +4,10 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import play.i18n.Messages;
 import util.IdGenerator;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 /**
  * Role.
@@ -50,11 +52,15 @@ public class Role {
     public static class RandomRole extends Role {
 
         public RandomRole() {
+<<<<<<< HEAD
             super(null, "role_random.png");
         }
 
         public String getName() {
             return Messages.get("room.role.random");
+=======
+            super("room.role.random", "role_random.png");
+>>>>>>> db694e6edb73290116f6d5e01996a18ac4acb31e
         }
 
         @Override

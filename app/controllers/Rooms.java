@@ -76,8 +76,9 @@ public class Rooms extends Controller {
         notFoundIfNull(role, "Role not found.");
         String connected = Security.connected();
         Player player = room.getPlayer(connected);
+        notFoundIfNull(player, "Player not found.");
         player.role = role;
-        room.publish();
+        room.onPlayerChange();
     }
 
     public static void room(Integer roomId) {
@@ -90,15 +91,15 @@ public class Rooms extends Controller {
     public static void start(Integer roomId) {
         Room room = Room.get(roomId);
         notFoundIfNull(room, "Room not found.");
-        Game game = new Game(room).save();
-        Games.game(game.id);
+        room.startGame();
+        Games.game(room.id);
     }
 
     public static void waitState(Integer roomId, Long lastReceived) {
         Room room = Room.get(roomId);
         notFoundIfNull(room, "Room not found.");
         List messages = await(room.nextEvents(lastReceived));
-        renderJSON(messages, new TypeToken<List<IndexedEvent<Room>>>() {}.getType());
+        renderJSON(messages, new TypeToken<List<IndexedEvent<Room.Event>>>() {}.getType());
     }
 
 }
