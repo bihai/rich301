@@ -17,16 +17,15 @@
 var gameId = "${game.id}";
 (function($, window) {
 	
-    var playList = [];
+    var playList = {};
 	    
 	R301.module.Action.init(function(events, textStatus) {
-		
 		
 		var data = events[0].data.game,
 			players = data.players,
 			gameMap = data.gameMap,
 			i = 0, len = players.length,
-			x = 0, y = 0, player = null,
+			x = 0, y = 0,
 			avatarPath = R301.constants.PUBLIC_PATH + '/data/roles/',
 			game = new R301.module.Game({
 				background: background,
@@ -34,26 +33,29 @@ var gameId = "${game.id}";
 			});
 	    
 		for(i; i < len; i++) {
-			player = players[i];
-			
-			y = parseInt(player.currentCellId / gameMap.width);
-			x = player.currentCellId % gameMap.width;
-			
-			var p = new R301.module.Player({
-				avatar: avatarPath + player.role.face,
-				width: 64, 
-				height: 64,
-				x: x,
-				y: y
-			});
-			
-			playList.push(p);
-			game.registAction(function() {
-				game.draw(p.getPlayer(), x * cellWidth, y * cellHeight - fixHeight);
-			});
+			(function(index) {
+				var player = players[index];
+				
+				y = parseInt(player.currentCellId / gameMap.width);
+				x = player.currentCellId % gameMap.width;
+				
+				playList[player.role.name] = new R301.module.Player({
+					avatar: avatarPath + player.role.face,
+					width: 64, 
+					height: 64,
+					x: x,
+					y: y
+				});
+				
+				game.registAction(function() {
+					var p = playList[player.role.name],
+						position = p.getPosition();
+					game.draw(p.getPlayer(), position.x * cellWidth, position.y * cellHeight - fixHeight);
+				});
+				
+			})(i);
 		};
 		
-		game.init();
 		game.appendTo(document.body);
 	    game.run();
 	});

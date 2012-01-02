@@ -36,11 +36,11 @@
 		registAction: function(fn) {
 			this.actions.push(fn);
 		},
-		init: function() {
-			var img = document.createElement('img'),
+		run: function() {
+			var me = this,
+				img = document.createElement('img'),
 				canvas = this.canvas,
-				ctx = this.ctx,
-				me = this;
+				ctx = this.ctx;
 			
 			img.addEventListener('load', function() {
 				var i = 0, actions = me.actions, len = actions.length;
@@ -55,9 +55,7 @@
 			});
 			
 			img.src = this.settings.background;
-		},
-		run: function() {
-			var me = this;
+			
 			setInterval(function() {
 				var t;
 				if(me.queue.length > 0) {
