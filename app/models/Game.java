@@ -82,7 +82,7 @@ public class Game {
     public void recordLastAvtive(Integer playerId) {
         for (Player player : players) {
             if (playerId.equals(player.id)) {
-                
+                player.recordLastActive();
             }
         }
     }
