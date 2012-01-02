@@ -144,7 +144,7 @@
          */
         subscribe: function() {
             var lastReceived = 0, waitEventsAction = this.options.waitEventsAction,
-                gameAction = this.options.gameAction, me = this;
+                me = this;
             var getMessages = function() {
                 $.ajax({
                     url: waitEventsAction({ lastReceived: lastReceived }),
@@ -231,6 +231,7 @@
          * @param {object} room Room that status be changed
          */
         onStatusUpdated: function(room) {
+            var gameAction = this.options.gameAction;
             if (room.status == "PLAYING") {
                 location.href = gameAction({ gameId: room.id });
                 return;
