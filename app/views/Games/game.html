@@ -18,46 +18,9 @@ var gameId = "${game.id}";
 (function($, window) {
 	
     var playList = {};
+    R301.module.Action.playerReady();
 	R301.module.Action.startGame(function(events, textStatus) {
 		$(window).trigger('startGame', [events]);
-		
-		var data = events[0].data.game,
-			players = data.players,
-			gameMap = data.gameMap,
-			i = 0, len = players.length,
-			x = 0, y = 0,
-			avatarPath = R301.constants.PUBLIC_PATH + '/data/roles/',
-			game = new R301.module.Game({
-				background: background,
-				map: gameMap.mapCells
-			});
-	    
-		for(i; i < len; i++) {
-			(function(index) {
-				var player = players[index];
-				
-				y = parseInt(player.currentCellId / gameMap.width);
-				x = player.currentCellId % gameMap.width;
-				
-				playList[player.role.name] = new R301.module.Player({
-					avatar: avatarPath + player.role.face,
-					width: 64, 
-					height: 64,
-					x: x,
-					y: y
-				});
-				
-				game.registAction(function() {
-					var p = playList[player.role.name],
-						position = p.getPosition();
-					game.draw(p.getPlayer(), position.x * cellWidth, position.y * cellHeight - fixHeight);
-				});
-				
-			})(i);
-		};
-		
-		game.appendTo(document.body);
-	    game.run();
 	});
     
 })(jQuery, window);
