@@ -93,7 +93,8 @@
          */
         renderPlayers: function() {
             var me = this, faceRoot = this.options.faceRoot,
-                container = this.options.playersContainer;
+                container = this.options.playersContainer,
+                startButton = this.options.startButton;
             container.empty();
             $.each(this.players, function(i, player) {
                 var self = (player.name == R301.constants.CURRENT_USER),
@@ -111,6 +112,9 @@
                         me.options.roleSelector.toggle("fast");
                     });
                 }
+                if (self) {
+                    startButton[ (player.master ? "show" : "hide") ]();
+                }
             });
         },
 
@@ -125,22 +129,21 @@
                     url: waitEventsAction({ lastReceived: lastReceived }),
                     contentType: "application/json",
                     success: function(events, textStatus) {
-                        $.each(events, function(i, event) {
-                            var room = event.data, roles, type = room.eventType;
-                            if (type == "StateChangeEvent") {
-                                if (room.status == "PLAYING") {
-                                    location.href = gameAction({ gameId: room.id });
-                                    return;
-                                }
-                                me.onStatusUpdated(room.status);
+                        var event = events[events.length - 1], room = event.data, 
+                            roles, type = room.eventType;
+                        if (type == "StateChangeEvent") {
+                            if (room.status == "PLAYING") {
+                                location.href = gameAction({ gameId: room.id });
+                                return;
                             }
-                            else if (type == "PlayerChangeEvent") {
-                                me.onPlayerUpdated(room.players);
-                                roles = me._getUnselectedRoles(room.players);
-                                me.onRoleUpdated(roles);
-                            }
-                            lastReceived = event.id;
-                        });
+                            me.onStatusUpdated(room.status);
+                        }
+                        else if (type == "PlayerChangeEvent") {
+                            me.onPlayerUpdated(room.players, room.master);
+                            roles = me._getUnselectedRoles(room.players);
+                            me.onRoleUpdated(roles);
+                        }
+                        lastReceived = event.id;
                         getMessages();
                     },
                     error: function(request, textStatus, error) {
@@ -198,8 +201,9 @@
         /**
          * Fire on players state changed, such as join or leave room.
          * @param {array} players All players that in the room
+         * @param {object} master Master player of the room
          */
-        onPlayerUpdated: function(players) {
+        onPlayerUpdated: function(players, master) {
             var current = R301.constants.CURRENT_USER;
             if (!players) {
                 return;
@@ -211,6 +215,12 @@
                     return 1;
                 } else {
                     return l.name > r.name ? -1 : 1;
+                }
+            });
+            $.each(players, function() {
+                if (this.id == master.id) {
+                    this.master = true;
+                    return false;
                 }
             });
             this.players = players;
