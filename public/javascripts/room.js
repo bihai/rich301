@@ -9,9 +9,9 @@
     /**
      * Construct room.
      * @param {object} options Options to pass settings
+     * @constructor
      */
     R301.module.Room = function(options) {
-        var me = this;
         this.options = $.extend({}, this.options, options);
         this.subscribe();
     }

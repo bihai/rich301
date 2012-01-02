@@ -1,5 +1,8 @@
 #{extends 'main.html' /}
 #{set title:messages.get("game.title") /}
+#{set 'moreScripts'}
+<script src="@{'/public/javascripts/statusbar.js'}" type="text/javascript" charset="UTF-8"></script>
+#{/set}
 
 <div id="players">
 <ul>
@@ -8,19 +11,30 @@
     #{/list}
 </ul>
 </div>
+<div id="statusbar">
+</div>
 <div id="game">
 </div>
 
 
 <script type="text/javascript">
-// Handle events
 var gameId = "${game.id}";
 (function($, window) {
-	
+
+    // Status bar
+    new R301.module.Statusbar({
+        container: $("#statubar")
+    });
+    
+    //
     var playList = {};
     R301.module.Action.playerReady();
 	R301.module.Action.startGame(function(events, textStatus) {
-		$(window).trigger('startGame', [events]);
+	    var event = events[events.length - 1], data = event.data;
+
+	    if (data.type == "StartEvent") {
+            $(window).trigger('startGame', [data.game]);
+	    }
 	});
     
 })(jQuery, window);
