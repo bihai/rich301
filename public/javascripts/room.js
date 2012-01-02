@@ -33,6 +33,12 @@
             changeRoleAction: null,
 
             /**
+             * URL to redirect to play game.
+             * @type function
+             */
+            gameAction: null,
+
+            /**
              * Players container element.
              * @type jQuery
              */
@@ -43,6 +49,18 @@
              * @type jQuery
              */
             roleSelector: null,
+
+            /**
+             * Start button.
+             * @type jQuery
+             */
+            startButton: null,
+
+            /**
+             * Leave button.
+             * @type jQuery
+             */
+            leaveButton: null,
 
             /**
              * Root URL to store role face.
@@ -84,7 +102,7 @@
                 htmls.push('<img class="role" src="' + (faceRoot + player.role.face) + '" />');
                 htmls.push('<div class="details">')
                 htmls.push('<em class="name">' + player.name + '</em>'); 
-                htmls.push('<em class="role-name">' + player.role.name + '</em>'); 
+                htmls.push('<em class="role-name">' + i18n(player.role.name) + '</em>'); 
                 htmls.push('</div>')
                 htmls.push("</li>");
                 el = $(htmls.join("")).appendTo(container);
@@ -108,6 +126,10 @@
                     contentType: "application/json",
                     success: function(events, textStatus) {
                         var event = events[0], room = event.data, roles;
+                        if (room.status == "PLAYING") {
+                            location.href = gameAction({ gameId: room.id });
+                            return;
+                        }
                         // XXX response may only include changed part of whole state in the future
                         me.onPlayerUpdated(room.players);
                         me.onStatusUpdated(room.status);
@@ -197,7 +219,7 @@
         onStatusUpdated: function(status) {
             $("#room-status").text(status);
         },
-
+        
         /**
          * Get unselected roles from specified players.
          * @param {array} players Players to filter

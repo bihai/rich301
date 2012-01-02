@@ -50,7 +50,7 @@ public class Game {
     }
     
     public Game(Room room) {
-        id = IdGenerator.generate();
+        this.id = room.id;
         this.name = room.name;
         this.gameMap = MapGenerator.generateMap();
         for (Player player : room.players) {

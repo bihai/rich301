@@ -12,6 +12,9 @@ import play.libs.F.IndexedEvent;
 import play.libs.F.Promise;
 import util.IdGenerator;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 /**
  * Game module.
  * 
@@ -23,7 +26,7 @@ public class Room {
     private static Map<Integer, Room> STORE = new HashMap<Integer, Room>();
 
     transient private final ArchivedEventStream<Room> events = new ArchivedEventStream<Room>(100);
-    
+
     public Integer id;
 
     public String name;
@@ -78,12 +81,26 @@ public class Room {
         STORE.remove(id);
     }
 
+    public void startGame() {
+        status = Status.PLAYING;
+        new Game(this).save();
+        publish();
+    }
+
     public void publish() {
         events.publish(this);
     }
 
     public Promise<List<IndexedEvent<Room>>> nextEvents(long lastReceived) {
         return events.nextEvents(lastReceived);
+    }
+
+    public String toJson() {
+        JsonObject object = new JsonObject();
+        object.addProperty("id", id);
+        object.addProperty("name", name);
+        object.addProperty("status", status.toString());
+        return object.toString();
     }
 
     public static Collection<Room> all() {

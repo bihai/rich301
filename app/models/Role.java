@@ -4,8 +4,10 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import play.i18n.Messages;
 import util.IdGenerator;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 /**
  * Role.
@@ -39,6 +41,10 @@ public class Role {
         STORE.put(id, this);
     }
 
+    public JsonElement toJson() {
+        return new Gson().toJsonTree(this);
+    }
+
     public static Role get(Integer id) {
         return STORE.get(id);
     }
@@ -50,11 +56,7 @@ public class Role {
     public static class RandomRole extends Role {
 
         public RandomRole() {
-            super(null, "role_random.png");
-        }
-
-        public String getName() {
-            return Messages.get("room.role.random");            
+            super("room.role.random", "role_random.png");
         }
 
         @Override
