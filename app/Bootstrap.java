@@ -32,9 +32,9 @@ public class Bootstrap extends Job {
     }
 
     private void initJsonSerializer() {
-        RichUtil.builder.registerTypeAdapter(Player.class, new Game.Serializer());
+        RichUtil.builder.registerTypeAdapter(Game.class, new Game.Serializer());
         RichUtil.builder.registerTypeAdapter(Player.class, new Player.Serializer());
-        RichUtil.builder.registerTypeAdapter(Player.class, new Cell.Serializer());
-        RichUtil.builder.registerTypeAdapter(Player.class, new EstateCell.Serializer());
+        RichUtil.builder.registerTypeAdapter(Cell.class, new Cell.Serializer());
+        RichUtil.builder.registerTypeAdapter(EstateCell.class, new EstateCell.Serializer());
     }
 }
