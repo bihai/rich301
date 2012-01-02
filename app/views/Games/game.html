@@ -26,8 +26,6 @@ var gameId = "${game.id}";
         container: $("#statubar")
     });
     
-    //
-    var playList = {};
     R301.module.Action.playerReady();
 	R301.module.Action.startGame(function(events, textStatus) {
 	    var event = events[events.length - 1], data = event.data;

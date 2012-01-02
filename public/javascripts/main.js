@@ -144,6 +144,10 @@
 		}
 	};
 	
+	var Data = {
+		playerList: {}
+	};
+	
 	var Action = {
 		startGame: function(fn) {
 			$.ajax({
@@ -166,9 +170,8 @@
 		playerReady: function() {
 			$('<div></div>').bind('startGame', function(event, game) {
 				console.log(12)
-				var data = events[0].data.game,
-					players = data.players,
-					gameMap = data.gameMap,
+				var players = game.players,
+					gameMap = game.gameMap,
 					i = 0, len = players.length,
 					x = 0, y = 0,
 					avatarPath = R301.constants.PUBLIC_PATH + '/data/roles/',
@@ -184,7 +187,7 @@
 						y = parseInt(player.currentCellId / gameMap.width);
 						x = player.currentCellId % gameMap.width;
 						
-						playList[player.role.name] = new R301.module.Player({
+						Data.playerList[player.role.name] = new R301.module.Player({
 							avatar: avatarPath + player.role.face,
 							width: 64, 
 							height: 64,
@@ -193,14 +196,13 @@
 						});
 						
 						game.registAction(function() {
-							var p = playList[player.role.name],
+							var p = Data.playerList[player.role.name],
 								position = p.getPosition();
 							game.draw(p.getPlayer(), position.x * cellWidth, position.y * cellHeight - fixHeight);
 						});
 						
 					})(i);
 				};
-				
 				game.appendTo(document.body);
 			    game.run();
 			});
