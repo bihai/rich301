@@ -4,14 +4,13 @@
 <script src="@{'/public/javascripts/statusbar.js'}" type="text/javascript" charset="UTF-8"></script>
 #{/set}
 
-<div id="players">
-<ul>
-    #{list items: game.players, as: "player"}
-    <li>${player.name}</li>
-    #{/list}
-</ul>
-</div>
 <div id="statusbar">
+    <div id="game">
+        <h1 id="game-name"></h1>
+        <em></em>
+    </div>
+    <ul id="players">
+    </ul>
 </div>
 <div id="game">
 </div>
