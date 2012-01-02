@@ -69,7 +69,7 @@ public class MapGenerator {
 		Cell cell1513 = new EstateCell(RichUtil.retrieveCellId(gameMap, 15, 13), "四川路", "东方红大桥", 2000);
 		Cell cell1514 = new EstateCell(RichUtil.retrieveCellId(gameMap, 15, 14), "四川路", "绵阳二中", 2000);
 		Cell cell1515 = new EmptyCell(RichUtil.retrieveCellId(gameMap, 15, 15), "四川路", "南山中学");
-		Cell cell1516 = new EmptyCell(RichUtil.retrieveCellId(gameMap, 15, 16), "四川路", "科委立交桥");
+		Cell cell1516 = new EmptyCell(RichUtil.retrieveCellId(gameMap, 16, 15), "四川路", "科委立交桥");
 		Cell cell1616 = new EstateCell(RichUtil.retrieveCellId(gameMap, 16, 16), "四川路", "计划生育委员会", 2000);
 		Cell cell1617 = new EstateCell(RichUtil.retrieveCellId(gameMap, 16, 17), "四川路", "翠花街", 2000);
 		Cell cell1618 = new EstateCell(RichUtil.retrieveCellId(gameMap, 16, 18), "四川路", "四川小吃城", 2000);

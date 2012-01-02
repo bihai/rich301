@@ -47,9 +47,11 @@
 				canvas.width = this.width;
 				canvas.height = this.height;
 				ctx.drawImage(this, 0, 0);
-				for(i; i < len; i++) {
-					actions[i]();
-				}
+				setTimeout(function() {
+					for(i; i < len; i++) {
+						actions[i]();
+					}
+				}, 40);
 			});
 			
 			img.src = this.settings.background;

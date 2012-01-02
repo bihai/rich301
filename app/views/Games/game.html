@@ -21,6 +21,8 @@ var gameId = "${game.id}";
     var playList = [];
 	    
 	R301.module.Action.init(function(events, textStatus) {
+		
+		
 		var data = events[0].data.game,
 			players = data.players,
 			gameMap = data.gameMap,
@@ -35,22 +37,21 @@ var gameId = "${game.id}";
 		for(i; i < len; i++) {
 			player = players[i];
 			
-			y = parseInt(player.currentCellId / gameMap.height);
-			x = player.currentCellId % gameMap.height;
+			y = parseInt(player.currentCellId / gameMap.width);
+			x = player.currentCellId % gameMap.width;
 			
 			var p = new R301.module.Player({
 				avatar: avatarPath + player.role.face,
-				width: 128, 
-				height: 128,
+				width: 64, 
+				height: 64,
 				x: x,
 				y: y
 			});
 			
 			playList.push(p);
 			game.registAction(function() {
-				game.draw(p.getPlayer(), (x + 1) * cellWidth - fixWidth, y * cellHeight - fixHeight);
+				game.draw(p.getPlayer(), x * cellWidth, y * cellHeight - fixHeight);
 			});
-			
 		};
 		
 		game.init();

@@ -37,7 +37,7 @@ public class RichUtil {
      * @return The id of the cell.
      */
     public static int retrieveCellId(GameMap gameMap, int cellHeight, int cellWidth) {
-        return gameMap.height * cellHeight + cellWidth;
+        return gameMap.width * cellHeight + cellWidth;
     }
 
     /**
