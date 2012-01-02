@@ -119,6 +119,27 @@
         },
 
         /**
+         * Render role selector.
+         */
+        renderRoleSelector: function() {
+            var me = this, list = this.options.roleSelector.find("ul"), 
+                htmls, i, n, role, faceRoot = this.options.faceRoot,
+                roles = this._getUnselectedRoles();
+            list.empty();
+            for (i = 0, n = roles.length; i < n; i++) {
+                role = roles[i];
+                htmls = [];
+                htmls.push('<li>');
+                htmls.push('<img class="role" src="' + (faceRoot + role.face) + '" />');
+                htmls.push('<em>' + role.name + '</em>');
+                htmls.push('</li>');
+                $(htmls.join("")).bind("click", role, function(event) {
+                    me.onRoleSelected(event.data);
+                }).appendTo(list);
+            }            
+        },
+
+        /**
          * Subscribe room state change event in comet.
          */
         subscribe: function() {
@@ -130,18 +151,12 @@
                     contentType: "application/json",
                     success: function(events, textStatus) {
                         var event = events[events.length - 1], room = event.data, 
-                            roles, type = room.eventType;
+                            type = room.eventType;
                         if (type == "StateChangeEvent") {
-                            if (room.status == "PLAYING") {
-                                location.href = gameAction({ gameId: room.id });
-                                return;
-                            }
-                            me.onStatusUpdated(room.status);
+                            me.onStatusUpdated(room);
                         }
                         else if (type == "PlayerChangeEvent") {
-                            me.onPlayerUpdated(room.players, room.master);
-                            roles = me._getUnselectedRoles(room.players);
-                            me.onRoleUpdated(roles);
+                            me.onPlayerChanged(room);
                         }
                         lastReceived = event.id;
                         getMessages();
@@ -155,24 +170,37 @@
         },
         
         /**
-         * Fire on role has been updated.
-         * @param {array} roles Unselected roles
+         * Fire on players on the room has been changed.
+         * @param {object} room Room that changed players belongs to
          */
-        onRoleUpdated: function(roles) {
-            var me = this, list = this.options.roleSelector.find("ul"), 
-                htmls, i, n, role, faceRoot = this.options.faceRoot;
-            list.empty();
-            for (i = 0, n = roles.length; i < n; i++) {
-                role = roles[i];
-                htmls = [];
-                htmls.push('<li>');
-                htmls.push('<img class="role" src="' + (faceRoot + role.face) + '" />');
-                htmls.push('<em>' + role.name + '</em>');
-                htmls.push('</li>');
-                $(htmls.join("")).bind("click", role, function(event) {
-                    me.onRoleSelected(event.data);
-                }).appendTo(list);
+        onPlayerChanged: function(room) {
+            var players = room.players, master = room.master,
+                current = R301.constants.CURRENT_USER;
+            if (!players) {
+                return;
             }
+
+            // Parse players
+            players.sort(function(l, r) { 
+                if (l.name == current) {
+                    return -1;
+                } else if (r.name == current) {
+                    return 1;
+                } else {
+                    return l.name > r.name ? -1 : 1;
+                }
+            });
+            $.each(players, function() {
+                if (this.id == master.id) {
+                    this.master = true;
+                    return false;
+                }
+            });
+            this.players = players;
+
+            // Render
+            this.renderPlayers();
+            this.renderRoleSelector();
         },
         
         /**
@@ -199,50 +227,24 @@
         },
 
         /**
-         * Fire on players state changed, such as join or leave room.
-         * @param {array} players All players that in the room
-         * @param {object} master Master player of the room
+         * Fire on room status updated.
+         * @param {object} room Room that status be changed
          */
-        onPlayerUpdated: function(players, master) {
-            var current = R301.constants.CURRENT_USER;
-            if (!players) {
+        onStatusUpdated: function(room) {
+            if (room.status == "PLAYING") {
+                location.href = gameAction({ gameId: room.id });
                 return;
             }
-            players.sort(function(l, r) { 
-                if (l.name == current) {
-                    return -1;
-                } else if (r.name == current) {
-                    return 1;
-                } else {
-                    return l.name > r.name ? -1 : 1;
-                }
-            });
-            $.each(players, function() {
-                if (this.id == master.id) {
-                    this.master = true;
-                    return false;
-                }
-            });
-            this.players = players;
-            this.renderPlayers();
-        },
-
-        /**
-         * Fire on room status updated.
-         * @param {string} status Status to be
-         */
-        onStatusUpdated: function(status) {
-            $("#room-status").text(status);
         },
         
         /**
          * Get unselected roles from specified players.
-         * @param {array} players Players to filter
          * @return {array} Unselected roles
          * @private
          */
-        _getUnselectedRoles: function(players) {
-            var i, n, role, roles = this.options.roles, selected = [];
+        _getUnselectedRoles: function() {
+            var i, n, role, roles = this.options.roles, 
+                players = this.players, selected = [];
             if (!players) {
                 return;
             }
