@@ -24,6 +24,10 @@ import models.Player;
 
 public class RichUtil {
 
+    private static Random heightRandom = new Random(System.currentTimeMillis());
+    private static Random widthRandom = new Random(System.currentTimeMillis());
+    
+    
     public static GsonBuilder builder = new GsonBuilder();
     /**
      * Retrieve the id of a cell in the map.
@@ -68,8 +72,6 @@ public class RichUtil {
      * @return The random none empty cell.
      */
     public static Cell randomCell(GameMap gameMap) {
-        Random heightRandom = new Random(System.currentTimeMillis());
-        Random widthRandom = new Random(System.currentTimeMillis());
         while(true) {
             int height = heightRandom.nextInt(gameMap.height);
             int width = widthRandom.nextInt(gameMap.width);
