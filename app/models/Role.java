@@ -52,15 +52,7 @@ public class Role {
     public static class RandomRole extends Role {
 
         public RandomRole() {
-<<<<<<< HEAD
-            super(null, "role_random.png");
-        }
-
-        public String getName() {
-            return Messages.get("room.role.random");
-=======
             super("room.role.random", "role_random.png");
->>>>>>> db694e6edb73290116f6d5e01996a18ac4acb31e
         }
 
         @Override

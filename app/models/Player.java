@@ -134,6 +134,10 @@ public class Player {
         }
     }
     
+    public void recordLastActive() {
+        this.lastActive = System.currentTimeMillis();
+    }
+    
     public boolean canAfford(EstateCell estateCell) {
         return cash >= estateCell.price;
     }
