@@ -28,8 +28,8 @@ var gameId = "${game.id}";
     
     //
     var playList = {};
-	    
-	R301.module.Action.init(function(events, textStatus) {
+	R301.module.Action.startGame(function(events, textStatus) {
+		$(window).trigger('startGame', [events]);
 		
 		var data = events[0].data.game,
 			players = data.players,

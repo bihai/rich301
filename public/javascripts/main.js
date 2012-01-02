@@ -114,7 +114,7 @@
 		},
 		run: function() {
 			
-		},
+		
 		getPosition: function() {
 			return this.position;
 		},
@@ -124,7 +124,7 @@
 	};
 	
 	var Action = {
-		init: function(fn) {
+		startGame: function(fn) {
 			$.ajax({
                 url: '/ajax/games/'+ gameId +'/events?lastReceived=0',
                 contentType: "application/json",
@@ -140,6 +140,9 @@
 		bug: function() {},
 		run: function() {},
 		born: function(players) {
+			
+		},
+		playerReady: function() {
 			
 		}
 	}
