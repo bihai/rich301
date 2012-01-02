@@ -44,6 +44,8 @@ public class Game {
     public int round;
     
     public final ArchivedEventStream<Event> events = new ArchivedEventStream<Event>(100);
+    
+    public int lastReceived;
 
     public Promise<List<IndexedEvent<Event>>> nextEvents(long lastReceived) {
         return events.nextEvents(lastReceived);
@@ -59,6 +61,8 @@ public class Game {
             player.game = this;
         }
         this.events.publish(new StartEvent(this));
+        this.round = 0;
+        this.lastReceived = 0;
         this.nextPlayer();
     }
 
@@ -75,6 +79,14 @@ public class Game {
         return currentPlayer != null && connected.equals(currentPlayer.name);
     }
     
+    public void recordLastAvtive(Integer playerId) {
+        for (Player player : players) {
+            if (playerId.equals(player.id)) {
+                player.recordLastActive();
+            }
+        }
+    }
+    
     /**
      * Switch to the next player.
      * This method would be applied at the start of the game.
@@ -84,14 +96,46 @@ public class Game {
     public void nextPlayer() {
         if (currentPlayer == null) {
             currentPlayer = players.get(0);
-            round = 1;
+            this.nextRound();
         }
         else {
             int currentIndex = players.indexOf(currentPlayer);
-            currentPlayer = players.get((currentIndex + 1) % players.size());
-            round++;
+            int nextIndex = (currentIndex + 1) % players.size();
+            currentPlayer = players.get(nextIndex);
+            if (nextIndex == 0) {
+                this.nextRound();
+            }
+        }
+        if (currentPlayer.survive == false) {
+            nextPlayer();
         }
         this.events.publish(new NextPlayerEvent(currentPlayer.name));
+    }
+    
+    private void nextRound() {
+        if (!this.gameEnd()) {
+            round++;
+            NextRoundEvent nextRoundEvent = new NextRoundEvent(round);
+            this.events.publish(nextRoundEvent);
+        }
+    }
+    
+    private boolean gameEnd() {
+        int aliveCount = 0;
+        for (Player player : players) {
+            if (player.survive == true) {
+                aliveCount++;
+            }
+        }
+        if (aliveCount == 1) {
+            this.events.publish(new EndGameEvent());
+            return true;
+        }
+        return false;
+    }
+    
+    public void recordHeartbeat(Integer playerId) {
+        
     }
     
     public enum Action {
@@ -131,7 +175,7 @@ public class Game {
         public abstract void doAction(Game currentGame);
     }
 
-    public static class StartEvent extends Event {
+    static class StartEvent extends Event {
 
         public final Game game;
         
@@ -140,13 +184,26 @@ public class Game {
         }
     }
     
-    public static class NextPlayerEvent extends Event {
+    static class NextPlayerEvent extends Event {
         
         public final String playerName;
         
         public NextPlayerEvent(String playerName) {
             this.playerName = playerName;
         }
+        
+    }
+    
+    static class NextRoundEvent extends Event {
+        
+        public final int round;
+        
+        public NextRoundEvent(int round) {
+            this.round = round;
+        }
+    }
+    
+    static class EndGameEvent extends Event {
         
     }
     
@@ -166,7 +223,4 @@ public class Game {
         }
     }
 
-    static {
-        RichUtil.builder.registerTypeAdapter(Game.class, new Serializer());
-    }
 }

@@ -72,7 +72,4 @@ public class EstateCell extends Cell {
         }
     }
     
-    static {
-        RichUtil.builder.registerTypeAdapter(EstateCell.class, new Serializer());
-    }
 }

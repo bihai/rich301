@@ -33,6 +33,10 @@ public class Player {
 
     public int cash;
     
+    public boolean survive;
+    
+    public long lastActive;
+    
     private static final int DEFAULT_CASH = 10008;
 
     public Player(String name) {
@@ -44,6 +48,7 @@ public class Player {
         this.name = name;
         this.role = role;
         this.cash = DEFAULT_CASH;
+        this.survive = true;
     }
 
     /**
@@ -117,10 +122,20 @@ public class Player {
         if (currentCell != null && currentCell.needPass() && !((EstateCell)currentCell).owner.equals(this)) {
             EstateCell estateCell = (EstateCell)currentCell;
             this.cash -= estateCell.price;
-            game.events.publish(new CashChangeEvent(-estateCell.price, this.name));
-            estateCell.owner.cash += estateCell.price;
-            game.events.publish(new CashChangeEvent(estateCell.price, estateCell.owner.name));
+            if (this.cash <= 0) {
+                this.survive = false;
+                game.events.publish(new BackruptEvent(this.name));
+            }
+            else {
+                game.events.publish(new CashChangeEvent(-estateCell.price, this.name));
+                estateCell.owner.cash += estateCell.price;
+                game.events.publish(new CashChangeEvent(estateCell.price, estateCell.owner.name));
+            }
         }
+    }
+    
+    public void recordLastActive() {
+        this.lastActive = System.currentTimeMillis();
     }
     
     public boolean canAfford(EstateCell estateCell) {
@@ -199,6 +214,15 @@ public class Player {
         }
     }
     
+    static class BackruptEvent extends Event {
+        
+        public final String playerName;
+        
+        public BackruptEvent(String playerName) {
+            this.playerName = playerName;
+        }
+    }
+    
     public static class Serializer implements JsonSerializer<Player> {
 
         @Override
@@ -214,8 +238,4 @@ public class Player {
         }
     }
     
-    static {
-        RichUtil.builder.registerTypeAdapter(Player.class, new Serializer());
-    }
-
 }
