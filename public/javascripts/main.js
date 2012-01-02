@@ -71,6 +71,27 @@
 		}
 	};
 	
+	Phase = function() {
+		
+	};
+	Phase.prototype = {
+			
+	};
+	
+	Rolled = function() {
+		
+	};
+	Rolled.prototype = {
+			
+	};
+	
+	Turn = function() {
+		
+	};
+	Turn.prototype = {
+			
+	}
+	
 	Player = function(settings) {
 		settings = $.extend({
 			avatar: '',
@@ -114,13 +135,17 @@
 		},
 		run: function() {
 			
-		
+		},
 		getPosition: function() {
 			return this.position;
 		},
 		setPosition: function(opt) {
 			this.position = opt;
 		}
+	};
+	
+	var Data = {
+		playerList: {}
 	};
 	
 	var Action = {
@@ -143,9 +168,46 @@
 			
 		},
 		playerReady: function() {
-			
+			$('<div></div>').bind('startGame', function(event, game) {
+				console.log(12)
+				var players = game.players,
+					gameMap = game.gameMap,
+					i = 0, len = players.length,
+					x = 0, y = 0,
+					avatarPath = R301.constants.PUBLIC_PATH + '/data/roles/',
+					game = new R301.module.Game({
+						background: background,
+						map: gameMap.mapCells
+					});
+			    
+				for(i; i < len; i++) {
+					(function(index) {
+						var player = players[index];
+						
+						y = parseInt(player.currentCellId / gameMap.width);
+						x = player.currentCellId % gameMap.width;
+						
+						Data.playerList[player.role.name] = new R301.module.Player({
+							avatar: avatarPath + player.role.face,
+							width: 64, 
+							height: 64,
+							x: x,
+							y: y
+						});
+						
+						game.registAction(function() {
+							var p = Data.playerList[player.role.name],
+								position = p.getPosition();
+							game.draw(p.getPlayer(), position.x * cellWidth, position.y * cellHeight - fixHeight);
+						});
+						
+					})(i);
+				};
+				game.appendTo(document.body);
+			    game.run();
+			});
 		}
-	}
+	};
 	
 	R301.module.Game = Game;
 	R301.module.Player = Player;
