@@ -35,13 +35,15 @@ public class Room {
 
     public Status status;
 
+    public Player master;
+
     public Room(String name) {
         this.id = IdGenerator.generate();
         this.name = name;
         this.status = Status.WAITING;
     }
 
-    public Player getPlayer(String name) {
+    public synchronized Player getPlayer(String name) {
         if (players == null || players.isEmpty()) {
             return null;
         }
@@ -53,7 +55,7 @@ public class Room {
         return null;
     }
 
-    public void join(Player player) {
+    public synchronized void join(Player player) {
         if (players == null) {
             players = new HashSet<Player>();
         }
@@ -61,7 +63,7 @@ public class Room {
         onPlayerChange();
     }
 
-    public void leave(Player player) {
+    public synchronized void leave(Player player) {
         if (players == null || players.isEmpty()) {
             return;
         }
@@ -69,7 +71,7 @@ public class Room {
         onPlayerChange();
     }
 
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         return players.isEmpty();
     }
 
@@ -81,13 +83,19 @@ public class Room {
         STORE.remove(id);
     }
 
-    public void startGame() {
+    public synchronized void startGame() {
+        if (status != Status.WAITING) {
+            return;
+        }
         status = Status.PLAYING;
         new Game(this).save();
         events.publish(new StateChangeEvent(this));
     }
 
     public void onPlayerChange() {
+        if (players.size() == 1) {
+            master = players.iterator().next();
+        }
         events.publish(new PlayerChangeEvent(this));
     }
 
@@ -142,9 +150,12 @@ public class Room {
 
         public final Set<Player> players;
 
+        public final Player master;
+
         public PlayerChangeEvent(Room room) {
             super(room.id, room.name);
             this.players = room.players;
+            this.master = room.master;
         }
 
     }

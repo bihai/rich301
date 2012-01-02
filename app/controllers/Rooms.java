@@ -91,6 +91,10 @@ public class Rooms extends Controller {
     public static void start(Integer roomId) {
         Room room = Room.get(roomId);
         notFoundIfNull(room, "Room not found.");
+        String connected = Security.connected();
+        if (!connected.equals(room.master.name)) {
+            unauthorized();
+        }
         room.startGame();
         Games.game(room.id);
     }

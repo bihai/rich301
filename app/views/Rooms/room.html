@@ -24,8 +24,8 @@
         </ul>
     </div>
     <div class="action">
-    #{a @Rooms.start(room.id), class: "big-button start"}&{"game.start"}#{/a}
-    #{a @Rooms.leave(room.id), class: "big-button leave"}&{"room.leave"}#{/a}
+    #{a @Rooms.start(room.id), id: "start", class: "big-button start"}&{"game.start"}#{/a}
+    #{a @Rooms.leave(room.id), id: "leave", class: "big-button leave"}&{"room.leave"}#{/a}
     </div>
 
 </div>
@@ -40,6 +40,8 @@
         waitEventsAction: waitEventsAction,
         changeRoleAction: changeRoleAction,
         gameAction: gameAction,
+        startButton: $("#start"),
+        leaveButton: $("#leave"),
         playersContainer: $("#players"),
         roleSelector: $("#role-selector"),
         faceRoot: "${play.ctxPath}${play.configuration['rich301.role.url.prefix']}/",
