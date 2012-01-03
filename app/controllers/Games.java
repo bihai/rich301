@@ -8,6 +8,7 @@ import java.util.Map;
 import com.google.gson.reflect.TypeToken;
 
 import controllers.Secure.Security;
+import exception.GameException;
 
 import models.Event;
 import models.Game;
@@ -44,7 +45,6 @@ public class Games extends Controller {
         }
         List<IndexedEvent<Event>> events = await(game.nextEvents(lastReceived));
         String eventsJson = RichUtil.eventsToJson(events);
-        game.refreshLastReceived();
         renderJSON(eventsJson);
     }
 
@@ -60,13 +60,25 @@ public class Games extends Controller {
         currentAction.doAction(game);
     }
     
-    public static void lastReceived(Integer gameId) {
+    public static void enter(Integer gameId) {
         Game game = Game.get(gameId);
         notFoundIfNull(game);
         String connected = Security.connected();
         if (!game.validPlayer(connected)) {
             unauthorized();
         }
+        String gameJson = RichUtil.gameToJson(game);
+        renderJSON(gameJson);
     }
     
+    public void recordLastReceived(Integer gameId, Integer playerId, Integer lastReceived) {
+        Game game = Game.get(gameId);
+        notFoundIfNull(game);
+        try {
+            game.recordLastReceived(playerId, lastReceived);
+        }
+        catch (GameException e) {
+            error(e.getMessage());
+        }
+    }
 }
