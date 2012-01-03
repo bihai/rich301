@@ -31,3 +31,8 @@
 #players li .details h3 { font-size: 14px; color: #567; }
 #players li .details em { font-size: 18px; font-style: normal; font-weight: bold; color: #d90; }
 #players li.active { border: 3px solid #fff; }
+
+
+/* dice */
+.dice{ border: 1px solid #000; border-radius: 8px; text-shadow: 1px 1px 1px yellow; box-shadow: 5px 5px 5px rgba(0,0,0,0,3); background-color: rgba(0,0,0,0.6); position: absolute; text-align: center; width: 150px; height: 130px; line-height: 130px; font-size: 100px; font-weight: bold; color: white; }
+/* dice */
