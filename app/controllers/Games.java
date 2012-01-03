@@ -32,7 +32,6 @@ public class Games extends Controller {
     public static void game(Integer gameId) {
         Game game = Game.get(gameId);
         notFoundIfNull(game);
-        game.enterGame();
         render(game);
     }
 

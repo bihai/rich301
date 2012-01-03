@@ -88,12 +88,6 @@ public class Game {
         for (Player player: players) {
             randomRole(player);
         }
-    }
-    
-    /**
-     * States that a play had entered the game.
-     */
-    public void enterGame() {
         this.events.publish(new StartEvent(this));
         if (currentPlayer == null) {
             this.nextPlayer();

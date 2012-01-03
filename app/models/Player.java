@@ -127,8 +127,8 @@ public class Player {
             game.nextPlayer();
         }
         if (currentCell instanceof EstateCell) {
-            if (!((EstateCell)currentCell).owner.equals(this)) {
-                EstateCell estateCell = (EstateCell)currentCell;
+            EstateCell estateCell = (EstateCell)currentCell;
+            if (!(this.equals(estateCell.owner)) && estateCell.owner != null) {
                 int offer = this.cash >= estateCell.price ? estateCell.price: this.cash;
                 game.events.publish(new CashChangeEvent(-offer, this.name));
                 estateCell.owner.cash += estateCell.price;
