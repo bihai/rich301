@@ -84,6 +84,14 @@ public class Rooms extends Controller {
     public static void room(Integer roomId) {
         Room room = Room.get(roomId);
         notFoundIfNull(room, "Room not found.");
+        String connected = Security.connected();
+        Player player = room.getPlayer(connected);
+        if (player == null) {
+            unauthorized();
+        }
+        if (room.status == Room.Status.PLAYING) {
+            Games.game(roomId);
+        }
         Collection<Role> roles = Role.all();
         render(room, roles);
     }
