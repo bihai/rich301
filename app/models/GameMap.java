@@ -1,6 +1,7 @@
 package models;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -68,17 +69,19 @@ public class GameMap {
      * @param player The owner of the cell.
      */
     public void clearOwner(Player player) {
+        List<Cell> cellsToClear = new ArrayList<Cell>();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (mapCells[i][j] instanceof EstateCell) {
                     EstateCell currentEstate = (EstateCell) mapCells[i][j];
                     if (player.equals(currentEstate.owner)) {
                         currentEstate.owner = null;
-                        this.game.changeCellOwner(null, currentEstate);
+                        cellsToClear.add(currentEstate);
                     }
                 }
             }
         }
+        this.game.changeCellOwner(null, cellsToClear.toArray(new Cell[0]));
     }
 
     public static String randomMap() {

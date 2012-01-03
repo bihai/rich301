@@ -186,10 +186,14 @@ public class Game {
      * Change the the given cell to the given owner.
      * If the <code>ownerName</code> is null, it indicates to clear the owner of the given cell.
      * @param ownerName The owner to change into.
-     * @param cell The given cell.
+     * @param cell The given cell list.
      */
-    public void changeCellOwner(String ownerName, Cell cell) {
-        this.events.publish(new OwnerChangeEvent(ownerName, cell.id));
+    public void changeCellOwner(String ownerName, Cell... cells) {
+        List<Integer> cellIds = new ArrayList<Integer>();
+        for (Cell cell : cells) {
+            cellIds.add(cell.id);
+        }
+        this.events.publish(new OwnerChangeEvent(ownerName, cellIds));
     }
     
     private void nextRound() {
@@ -264,11 +268,11 @@ public class Game {
         
         public final String ownerName;
         
-        public final int cellId;
+        public final List<Integer> cellIds;
         
-        public OwnerChangeEvent(String ownerName, int cellId) {
+        public OwnerChangeEvent(String ownerName, List<Integer> cellIds) {
             this.ownerName = ownerName;
-            this.cellId = cellId;
+            this.cellIds = cellIds;
         }
     }
     
