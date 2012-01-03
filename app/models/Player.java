@@ -80,14 +80,13 @@ public class Player {
      * @param step The step to move.
      */
     public void move(int step) {
-    	int move = step;
         while (step-- > 0) {
             currentCell = currentCell.next;
             if (currentCell == null) {
                 throw new GameException("Cannot move to the target cell");
             }
         }
-        MoveEvent moveEvent = new MoveEvent(move);
+        MoveEvent moveEvent = new MoveEvent(currentCell.id);
         game.events.publish(moveEvent);
         this.pass();
     }
@@ -199,10 +198,10 @@ public class Player {
     
     public static class MoveEvent extends Event {
         
-        public final int step;
+        public final int cellId;
         
-        public MoveEvent(int step) {
-            this.step = step;
+        public MoveEvent(int cellId) {
+            this.cellId = cellId;
         }
         
     }
