@@ -209,7 +209,7 @@ public class MapGenerator {
 		cell90.pendNext(cell80);
 		cell80.pendNext(cell70);
 		
-		
+		gameMap.initEmptyCells();
 		return gameMap;
 	}
 }

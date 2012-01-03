@@ -1,6 +1,7 @@
 package models;
 
 import java.lang.reflect.Type;
+import java.util.Random;
 
 import util.IdGenerator;
 import util.RichUtil;
@@ -50,14 +51,14 @@ public class Player {
         this.cash = DEFAULT_CASH;
         this.survive = true;
     }
-
+    
     /**
      * Random a start position for the player in the given map.
      * The cell id would be set to the value of the cell.
      * @param map The given map.
      */
     public void randomStart(GameMap map) {
-        currentCell = RichUtil.randomCell(map);
+        currentCell = map.randomStartCell();
     }
     
     /**
@@ -87,6 +88,7 @@ public class Player {
         }
         MoveEvent moveEvent = new MoveEvent(step);
         game.events.publish(moveEvent);
+        this.pass();
     }
     
     /**
@@ -107,8 +109,7 @@ public class Player {
         this.cash -= estateCell.price;
         game.events.publish(new CashChangeEvent(-estateCell.price, this.name));
         estateCell.changeOwner(this);
-        game.events.publish(new OwnerChangeEvent(this.name));
-
+        game.changeCellOwner(this.name, currentCell);
     }
     
     /**
@@ -119,18 +120,25 @@ public class Player {
      * Two events of {@link CashChangeEvent} would be generated to indicate the changes of the two players in cash.
      */
     public void pass() {
-        if (currentCell != null && currentCell.needPass() && !((EstateCell)currentCell).owner.equals(this)) {
-            EstateCell estateCell = (EstateCell)currentCell;
-            this.cash -= estateCell.price;
-            if (this.cash <= 0) {
-                this.survive = false;
-                game.events.publish(new BackruptEvent(this.name));
-            }
-            else {
-                game.events.publish(new CashChangeEvent(-estateCell.price, this.name));
+        if (currentCell == null) {
+            throw new GameException("Stepped onto a null cell.");
+        }
+        if (currentCell instanceof EmptyCell) {
+            game.nextPlayer();
+        }
+        if (currentCell instanceof EstateCell) {
+            if (!((EstateCell)currentCell).owner.equals(this)) {
+                EstateCell estateCell = (EstateCell)currentCell;
+                int offer = this.cash >= estateCell.price ? estateCell.price: this.cash;
+                game.events.publish(new CashChangeEvent(-offer, this.name));
                 estateCell.owner.cash += estateCell.price;
-                game.events.publish(new CashChangeEvent(estateCell.price, estateCell.owner.name));
+                game.events.publish(new CashChangeEvent(offer, estateCell.owner.name));
+                this.cash = this.cash - estateCell.price;
+                if (this.cash <= 0) {
+                    this.backrupt();
+                }
             }
+            game.nextPlayer();
         }
     }
     
@@ -140,6 +148,12 @@ public class Player {
     
     public boolean canAfford(EstateCell estateCell) {
         return cash >= estateCell.price;
+    }
+    
+    public void backrupt() {
+        this.survive = false;
+        game.events.publish(new BackruptEvent(name));
+        game.gameMap.clearOwner(this);
     }
 
     @Override
@@ -172,7 +186,7 @@ public class Player {
         return true;
     }
     
-    static class DiceEvent extends Event {
+    public static class DiceEvent extends Event {
         
         public int value;
         
@@ -182,7 +196,7 @@ public class Player {
         
     }
     
-    static class MoveEvent extends Event {
+    public static class MoveEvent extends Event {
         
         public final int step;
         
@@ -192,7 +206,7 @@ public class Player {
         
     }
     
-    static class CashChangeEvent extends Event {
+    public static class CashChangeEvent extends Event {
         
         public final int cashChange;
         
@@ -205,16 +219,7 @@ public class Player {
         
     }
     
-    static class OwnerChangeEvent extends Event {
-        
-        public final String ownerName;
-        
-        public OwnerChangeEvent(String ownerName) {
-            this.ownerName = ownerName;
-        }
-    }
-    
-    static class BackruptEvent extends Event {
+    public static class BackruptEvent extends Event {
         
         public final String playerName;
         

@@ -21,6 +21,7 @@
 
 <script type="text/javascript">
 var gameId = "${game.id}";
+var lastReceived = "${game.lastReceived}";
 (function($, window) {
 
     // Status bar
@@ -40,7 +41,7 @@ var gameId = "${game.id}";
 			i++;
 		}
 	    
-	});
+	}, lastReceived);
     
 })(jQuery, window);
 </script>

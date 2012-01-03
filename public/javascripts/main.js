@@ -149,9 +149,9 @@
 	};
 	
 	var Action = {
-		startGame: function(fn) {
+		startGame: function(fn, lastReceived) {
 			$.ajax({
-                url: '/ajax/games/'+ gameId +'/events?lastReceived=0',
+                url: '/ajax/games/'+ gameId +'/events?lastReceived=' + lastReceived,
                 contentType: "application/json",
                 success: function(events, textStatus) {
                 	fn && fn(events, textStatus);
