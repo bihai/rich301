@@ -21,27 +21,17 @@
 
 <script type="text/javascript">
 var gameId = "${game.id}";
-var lastReceived = "${game.lastReceived}";
+
 (function($, window) {
 
     // Status bar
     new R301.module.Statusbar({
         container: $("#statusbar")
     });
-    
+    // role position
     R301.module.Action.playerReady();
-	R301.module.Action.startGame(function(events, textStatus) {
-		var i = 0, len = events.length;
-		while(i < len) {
-			var event = events[i],
-				data = event.data;
-			if (data.type == "StartEvent") {
-	            $(window).trigger('startGame', [data.game]);
-		    }
-			i++;
-		}
-	    
-	}, lastReceived);
+    //deal with events
+    R301.module.Action.events();
     
 })(jQuery, window);
 </script>

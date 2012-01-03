@@ -92,11 +92,18 @@
 			
 	}
 	
-	Dice = function(settings) {
+	Dice = function(el, settings) {
+		if(!el) { return; }
 		settings = $.extend({
 			num: 1
 		}, settings);
-	}
+		
+		var container = $('<div class="dice"></div>');
+		
+	};
+	Dice.prototype = {
+		
+	};
 	
 	Player = function(settings) {
 		settings = $.extend({
@@ -146,9 +153,37 @@
 	};
 	
 	var Action = {
-		startGame: function(fn, lastReceived) {
+		events: (function() {
+			var lastReceived = 0;
+			return function() {
+				console.log(lastReceived);
+				$.ajax({
+	                url: '/ajax/games/'+ gameId +'/events?lastReceived=' + lastReceived,
+	                contentType: "application/json",
+	                success: function(events, textStatus) {
+	                	var i = 0, len = events.length;
+	            		while(i < len) {
+	            			var event = events[i],
+	            				data = event.data;
+	            			if (data.type == "StartEvent") {
+	            	            $(window).trigger('startGame', [data.game]);
+	            		    }else if(data.type == "DiceEvent") {
+	            		    	$(window).trigger('rollDice', [data.value]);
+	            		    };
+	            			i++;
+	            			lastReceived = event.id;
+	            		}
+	            		Action.events();
+	                },
+	                error: function(request, textStatus, error) {
+	                	
+	                }
+	            });
+			}
+		}()),
+		roll: function() {
 			$.ajax({
-                url: '/ajax/games/'+ gameId +'/events?lastReceived=' + lastReceived,
+				url: '/ajax/games/'+ gameId +'/action/roll',
                 contentType: "application/json",
                 success: function(events, textStatus) {
                 	fn && fn(events, textStatus);
@@ -158,9 +193,13 @@
                 }
             });
 		},
-		roll: function() {},
 		bug: function() {},
 		run: function() {},
+		showDice: function() {
+			$(window).bind('rollDice', function() {
+				
+			});
+		},
 		playerReady: function() {
 			$(window).bind('startGame', function(event, game) {
 				var players = game.players,
