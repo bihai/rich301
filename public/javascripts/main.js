@@ -92,6 +92,12 @@
 			
 	}
 	
+	Dice = function(settings) {
+		settings = $.extend({
+			num: 1
+		}, settings);
+	}
+	
 	Player = function(settings) {
 		settings = $.extend({
 			avatar: '',
@@ -126,15 +132,6 @@
 		},
 		getPlayer: function() {
 			return this.player;
-		},
-		roll: function() {
-			
-		},
-		buy: function() {
-			
-		},
-		run: function() {
-			
 		},
 		getPosition: function() {
 			return this.position;
