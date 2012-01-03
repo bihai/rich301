@@ -46,6 +46,11 @@ public class RichUtil {
         return gson.toJson(gameMap);
     }
     
+    public static String gameToJson(Game game) {
+        Gson gson = builder.create();
+        return gson.toJson(game);
+    }
+    
     
     public static String eventsToJson(List<IndexedEvent<Event>> events) {
         Gson gson = builder.create();

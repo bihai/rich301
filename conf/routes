@@ -27,8 +27,9 @@ GET     /ajax/rooms/{roomId}/state              Rooms.waitState
 # Games
 GET     /games/{gameId}/?                       Games.game
 GET     /ajax/games/{gameId}/events             Games.waitEvents
-GET    /ajax/games/{gameId}/action/{actionName}         Games.action
-
+POST    /ajax/games/{gameId}/action/{actionName}         Games.action
+POST    /ajax/games/{gameId}/enter                       Games.enter
+POST    /ajax/games/{gameId}/{playerId}/lastreceived     Games.recordLastReceived
 
 # Catch all
 *       /{controller}/{action}                  {controller}.{action}

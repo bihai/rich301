@@ -36,7 +36,11 @@ public class Player {
     
     public boolean survive;
     
+    public long lastReceived;
+    
     public long lastActive;
+    
+    public boolean connected;
     
     private static final int DEFAULT_CASH = 10008;
 
@@ -50,6 +54,8 @@ public class Player {
         this.role = role;
         this.cash = DEFAULT_CASH;
         this.survive = true;
+        this.lastReceived = 0;
+        this.connected = true;
     }
     
     /**
@@ -68,7 +74,7 @@ public class Player {
      */
     public int roll() {
         DiceEvent diceEvent = new DiceEvent();
-        game.events.publish(diceEvent);
+        game.publish(diceEvent);
         return diceEvent.value;
     }
     
@@ -80,14 +86,15 @@ public class Player {
      * @param step The step to move.
      */
     public void move(int step) {
-        while (step-- > 0) {
+        int move = step;
+        while (move-- > 0) {
             currentCell = currentCell.next;
             if (currentCell == null) {
                 throw new GameException("Cannot move to the target cell");
             }
         }
         MoveEvent moveEvent = new MoveEvent(step);
-        game.events.publish(moveEvent);
+        game.publish(moveEvent);
         this.pass();
     }
     
@@ -107,7 +114,7 @@ public class Player {
             throw new GameException("Not enough money to buy this cell");
         }
         this.cash -= estateCell.price;
-        game.events.publish(new CashChangeEvent(-estateCell.price, this.name));
+        game.publish(new CashChangeEvent(-estateCell.price, this.name));
         estateCell.changeOwner(this);
         game.changeCellOwner(this.name, currentCell);
     }
@@ -123,27 +130,29 @@ public class Player {
         if (currentCell == null) {
             throw new GameException("Stepped onto a null cell.");
         }
-        if (currentCell instanceof EmptyCell) {
-            game.nextPlayer();
-        }
         if (currentCell instanceof EstateCell) {
             EstateCell estateCell = (EstateCell)currentCell;
             if (!(this.equals(estateCell.owner)) && estateCell.owner != null) {
                 int offer = this.cash >= estateCell.price ? estateCell.price: this.cash;
-                game.events.publish(new CashChangeEvent(-offer, this.name));
+                game.publish(new CashChangeEvent(-offer, this.name));
                 estateCell.owner.cash += estateCell.price;
-                game.events.publish(new CashChangeEvent(offer, estateCell.owner.name));
+                game.publish(new CashChangeEvent(offer, estateCell.owner.name));
                 this.cash = this.cash - estateCell.price;
                 if (this.cash <= 0) {
                     this.backrupt();
                 }
             }
-            game.nextPlayer();
         }
+        game.nextPlayer();
     }
     
-    public void recordLastActive() {
+    public void recordLastReceived(int lastReceived) {
+        this.lastReceived = lastReceived;
         this.lastActive = System.currentTimeMillis();
+    }
+    
+    public boolean connected(long referenceLastReceived) {
+        return (referenceLastReceived == lastReceived || System.currentTimeMillis() - this.lastActive >= 5000);
     }
     
     public boolean canAfford(EstateCell estateCell) {
@@ -152,7 +161,7 @@ public class Player {
     
     public void backrupt() {
         this.survive = false;
-        game.events.publish(new BackruptEvent(name));
+        game.publish(new BackruptEvent(name));
         game.gameMap.clearOwner(this);
     }
 
@@ -239,6 +248,7 @@ public class Player {
             playerObject.add("role", ctx.serialize(src.role));
             playerObject.add("currentCellId", new JsonPrimitive(src.currentCell.id));
             playerObject.add("cash", new JsonPrimitive(src.cash));
+            playerObject.add("lastReceived", new JsonPrimitive(src.lastReceived));
             return playerObject;
         }
     }

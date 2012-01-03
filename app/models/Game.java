@@ -52,7 +52,9 @@ public class Game {
     
     public int round;
     
-    public final ArchivedEventStream<Event> events = new ArchivedEventStream<Event>(20);
+    private final ArchivedEventStream<Event> events = new ArchivedEventStream<Event>(40);
+    
+    public Status status;
     
     public long lastReceived;
 
@@ -60,9 +62,30 @@ public class Game {
         return events.nextEvents(lastReceived);
     }
     
-    public void refreshLastReceived() {
-        List<IndexedEvent> historyEvents = events.availableEvents(lastReceived);
-        for (IndexedEvent indexedEvent : historyEvents) {
+    public void publish(Event event) {
+        this.checkPlayerStatus();
+        events.publish(event);
+        this.refreshLastReceived();
+    }
+    
+    private void checkPlayerStatus() {
+        boolean allConnected = true;
+        for (Player player : players) {
+            if (!player.connected(lastReceived)) {
+                player.connected = false;
+                allConnected = false;
+                this.publish(new DisconnectedEvent(player.name));
+            }
+            else {
+                player.connected = true;
+            }
+        }
+        this.status = allConnected ? Status.RUNNING : Status.PENDING;
+    }
+    
+    private void refreshLastReceived() {
+        List<IndexedEvent> availableEvents = events.availableEvents(lastReceived);
+        for (IndexedEvent indexedEvent : availableEvents) {
             if (indexedEvent.id > lastReceived) {
                 lastReceived = indexedEvent.id;
             }
@@ -74,7 +97,6 @@ public class Game {
         this.name = room.name;
         this.gameMap = MapGenerator.generateMap();
         this.round = 0;
-        this.lastReceived = 0;
 
         if (players == null) {
             players = new ArrayList<Player>();
@@ -88,10 +110,10 @@ public class Game {
         for (Player player: players) {
             randomRole(player);
         }
-        this.events.publish(new StartEvent(this));
         if (currentPlayer == null) {
             this.nextPlayer();
         }
+        this.status = Status.RUNNING;
     }
     
     private void initAvailableRoles() {
@@ -141,10 +163,13 @@ public class Game {
      * A {@link GameException} would be thrown if no player match the given id.
      * @param playerId The given player id.
      */
-    public void recordLastAvtive(Integer playerId) {
+    public void recordLastReceived(Integer playerId, Integer lastReceived) {
         for (Player player : players) {
             if (playerId.equals(player.id)) {
-                player.recordLastActive();
+                player.recordLastReceived(lastReceived);
+                if (player.connected == false) {
+                    this.publish(new ConnectedEvent(player.name));
+                }
                 return;
             }
         }
@@ -173,7 +198,7 @@ public class Game {
         if (currentPlayer.survive == false) {
             nextPlayer();
         }
-        this.events.publish(new NextPlayerEvent(currentPlayer.name));
+        this.publish(new NextPlayerEvent(currentPlayer.name));
     }
     
     /**
@@ -187,14 +212,14 @@ public class Game {
         for (Cell cell : cells) {
             cellIds.add(cell.id);
         }
-        this.events.publish(new OwnerChangeEvent(ownerName, cellIds));
+        this.publish(new OwnerChangeEvent(ownerName, cellIds));
     }
     
     private void nextRound() {
         if (!this.gameEnd()) {
             round++;
             NextRoundEvent nextRoundEvent = new NextRoundEvent(round);
-            this.events.publish(nextRoundEvent);
+            this.publish(nextRoundEvent);
         }
     }
     
@@ -206,7 +231,7 @@ public class Game {
             }
         }
         if (aliveCount == 1) {
-            this.events.publish(new EndGameEvent());
+            this.publish(new EndGameEvent());
             return true;
         }
         return false;
@@ -247,6 +272,17 @@ public class Game {
         };
         
         public abstract void doAction(Game currentGame);
+    }
+    
+    public enum Status {
+        
+        RUNNING,
+        
+        STARTED,
+        
+        PENDING,
+        
+        END,
     }
 
     public static class StartEvent extends Event {
@@ -291,6 +327,24 @@ public class Game {
     
     public static class EndGameEvent extends Event {
         
+    }
+    
+    public static class DisconnectedEvent extends Event {
+        
+        public final String playerName;
+        
+        public DisconnectedEvent(String playerName) {
+            this.playerName = playerName;
+        }
+    }
+    
+    public static class ConnectedEvent extends Event {
+        
+        public final String playerName;
+        
+        public ConnectedEvent(String playerName) {
+            this.playerName = playerName;
+        }
     }
     
     public static class Serializer implements JsonSerializer<Game> {
