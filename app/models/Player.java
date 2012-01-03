@@ -93,7 +93,7 @@ public class Player {
                 throw new GameException("Cannot move to the target cell");
             }
         }
-        MoveEvent moveEvent = new MoveEvent(step);
+        MoveEvent moveEvent = new MoveEvent(currentCell.id);
         game.publish(moveEvent);
         this.pass();
     }
@@ -207,10 +207,10 @@ public class Player {
     
     public static class MoveEvent extends Event {
         
-        public final int step;
+        public final int cellId;
         
-        public MoveEvent(int step) {
-            this.step = step;
+        public MoveEvent(int cellId) {
+            this.cellId = cellId;
         }
         
     }

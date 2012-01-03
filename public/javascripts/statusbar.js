@@ -5,20 +5,22 @@
  */
 (function($, window) {
 
+    var $window = $(window);
+
     /**
      * Construct status bar.
      * @param {object} options Property settings
      * @constructor
      */
     R301.module.Statusbar = function(options) {
-        var me = this, $window, container;
+        var me = this, container;
         this.options = $.extend({}, this.options, options);
         container = this.options.container;
         this.options.playersContainer = container.find("#players");
         this.options.detailsContainer = container.find("#details");
+        this.options.actionsContainer = container.find("#actions");
 
         // Bind global events
-        $window = $(window);
         $window.bind("startGame", function(event, game) {
             me.onGameStart(game);
         });
@@ -44,7 +46,13 @@
              * Game details container.
              * @type jQuery
              */
-            detailsContainer: null
+            detailsContainer: null,
+
+            /**
+             * Actions container.
+             * @type jQuery
+             */
+            actionsContainer: null
 
         },
 
@@ -59,6 +67,7 @@
          */
         render: function() {
             this._renderDetails();
+            this._renderAction();
             this._renderPlayers();
         },
 
@@ -72,6 +81,17 @@
         },
 
         /**
+         * Render actions.
+         */
+        _renderAction: function() {
+            var me = this, container = this.options.actionsContainer,
+                actionRoll = container.find("#action-roll");
+            actionRoll.click(function() {
+                $window.trigger("action:roll");
+            });
+        },
+
+        /**
          * Render players.
          */
         _renderPlayers: function() {
@@ -80,7 +100,7 @@
             $.each(players, function(i, player) {
                 var htmls = [], role = player.role,
                     face = R301.constants.ROLE_FACE_ROOT + role.face;
-                htmls.push('<li ' + (player.active ? 'class="active"' : '') + '>');
+                htmls.push('<li class="box' + (player.active ? ' active' : '') + '">');
                 htmls.push('<img src="' + face + '" />');
                 htmls.push('<div class="details">');
                 htmls.push('<h3>' + player.name + '</h3>');

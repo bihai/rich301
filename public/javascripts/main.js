@@ -92,11 +92,48 @@
 			
 	}
 	
-	Dice = function(settings) {
+	Dice = function(el, settings) {
+		if(!el) { return; }
 		settings = $.extend({
-			num: 1
+			width: 50,
+			height: 50,
 		}, settings);
-	}
+		
+		this.container = $('<div class="dice" style="display: none;"></div>').appendTo(el);
+		this.settings = settings;
+		this.randomTimeId = 0;
+	};
+	Dice.prototype = {
+		setPosition: function() {
+			var win = $(window), 
+				settings = this.settings;
+			this.container.css({
+				'left': (win.width() - settings.width) / 2,
+				'top': (win.height() - settings.height) / 2
+			});
+		},
+		random: function() {
+			var me = this,
+				num = 1;
+			this.randomTimeId = setTimeout(function() {
+				num = Math.floor(Math.random() * 6 + 1);
+				me.setNumber(num);
+				me.random();
+			}, 20);
+		},
+		stopRandom: function() {
+			clearTimeout(this.randomTimeId);
+		},
+		setNumber: function(num) {
+			this.container.html(num);
+		},
+		show: function() {
+			this.container.show();
+		},
+		hide: function() {
+			this.container.hide();
+		}
+	};
 	
 	Player = function(settings) {
 		settings = $.extend({
@@ -146,22 +183,64 @@
 	};
 	
 	var Action = {
-		startGame: function(fn, lastReceived) {
-			$.ajax({
-                url: '/ajax/games/'+ gameId +'/events?lastReceived=' + lastReceived,
-                contentType: "application/json",
-                success: function(events, textStatus) {
-                	fn && fn(events, textStatus);
-                },
-                error: function(request, textStatus, error) {
-                	
-                }
-            });
+		events: (function() {
+			var lastReceived = 0;
+			return function() {
+				$.ajax({
+	                url: '/ajax/games/'+ gameId +'/events?lastReceived=' + lastReceived,
+	                contentType: "application/json",
+	                success: function(events, textStatus) {
+	                	var i = 0, len = events.length;
+	            		while(i < len) {
+	            			var event = events[i],
+	            				data = event.data;
+	            			if (data.type == "StartEvent") {
+	            	            $(window).trigger('startGame', [data.game]);
+	            		    }else if(data.type == "DiceEvent") {
+	            		    	$(window).trigger('rollDice', [data.value]);
+	            		    };
+	            			i++;
+	            			lastReceived = event.id;
+	            		}
+	            		Action.events();
+	                },
+	                error: function(request, textStatus, error) {
+	                	
+	                }
+	            });
+			}
+		}()),
+		roll: function() {
+			var dice = new Dice($('body'));
+			Data.dice = dice;
+			$(window).bind('action:roll', function() {
+				dice.random();
+				dice.setPosition();
+				dice.show();
+				console.log(12)
+				$.ajax({
+					url: '/ajax/games/'+ gameId +'/action/roll',
+	                contentType: "application/json",
+	                success: function(events, textStatus) {
+	                	
+	                },
+	                error: function(request, textStatus, error) {
+	                }
+	            });
+			});
 		},
-		roll: function() {},
 		bug: function() {},
 		run: function() {},
-		playerReady: function() {
+		showDice: function() {
+			$(window).bind('rollDice', function(event, value) {
+				setTimeout(function() {
+					var dice = Data.dice;
+					dice.stopRandom();
+					dice.setNumber(value);
+				}, 1000);
+			});
+		},
+		playerReady: (function() {
 			$(window).bind('startGame', function(event, game) {
 				var players = game.players,
 					gameMap = game.gameMap,
@@ -199,12 +278,16 @@
 				game.appendTo(document.body);
 			    game.run();
 			});
+		}()),
+		currentClientSize: function() {
+			
 		}
 	};
 	
 	R301.module.Game = Game;
 	R301.module.Player = Player;
 	R301.module.Action = Action;
+	R301.module.Dice = Dice;
 })();
 
 

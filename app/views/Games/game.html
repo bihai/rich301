@@ -8,10 +8,13 @@
 #{/set}
 
 <div id="statusbar">
-    <div id="details">
+    <div id="details" class="box">
         <em></em>
         <h1></h1>
     </div>
+    <ul id="actions" class="box">
+        <li id="action-roll" class="game-action">&{"game.action.roll"}</li>
+    </ul>
     <ul id="players">
     </ul>
 </div>
@@ -21,7 +24,7 @@
 
 <script type="text/javascript">
 var gameId = "${game.id}";
-var lastReceived = "${game.lastReceived}";
+
 (function($, window) {
 
     // Status bar
@@ -29,19 +32,10 @@ var lastReceived = "${game.lastReceived}";
         container: $("#statusbar")
     });
     
-    R301.module.Action.playerReady();
-	R301.module.Action.startGame(function(events, textStatus) {
-		var i = 0, len = events.length;
-		while(i < len) {
-			var event = events[i],
-				data = event.data;
-			if (data.type == "StartEvent") {
-	            $(window).trigger('startGame', [data.game]);
-		    }
-			i++;
-		}
-	    
-	}, lastReceived);
+    R301.module.Action.roll();
+    R301.module.Action.showDice();
+    // deal with events
+    R301.module.Action.events();
     
 })(jQuery, window);
 </script>
