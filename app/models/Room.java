@@ -23,7 +23,7 @@ import com.google.gson.JsonObject;
  */
 public class Room {
 
-    private static Map<Integer, Room> STORE = new HashMap<Integer, Room>();
+    static Map<Integer, Room> STORE = new HashMap<Integer, Room>();
 
     transient private final ArchivedEventStream<Room.Event> events = new ArchivedEventStream<Room.Event>(100);
 

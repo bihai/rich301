@@ -2,9 +2,12 @@ package models;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import models.Player.Serializer;
 
@@ -13,6 +16,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+
+import exception.GameException;
 
 import play.libs.F.ArchivedEventStream;
 import play.libs.F.IndexedEvent;
@@ -31,11 +36,15 @@ public class Game {
 
     private static final Map<Integer, Game> STORE = new HashMap<Integer, Game>();
 
+    private Random seed = new Random(System.currentTimeMillis());
+
+    private LinkedList<Role> availableRoles;
+
     public Integer id;
 
     public String name;
 
-    public List<Player> players = new ArrayList<Player>();
+    public List<Player> players;
     
     public Player currentPlayer;
     
@@ -43,27 +52,81 @@ public class Game {
     
     public int round;
     
-    public final ArchivedEventStream<Event> events = new ArchivedEventStream<Event>(100);
+    public final ArchivedEventStream<Event> events = new ArchivedEventStream<Event>(20);
     
-    public int lastReceived;
+    public long lastReceived;
 
     public Promise<List<IndexedEvent<Event>>> nextEvents(long lastReceived) {
         return events.nextEvents(lastReceived);
+    }
+    
+    public void refreshLastReceived() {
+        List<IndexedEvent> historyEvents = events.availableEvents(lastReceived);
+        for (IndexedEvent indexedEvent : historyEvents) {
+            if (indexedEvent.id > lastReceived) {
+                lastReceived = indexedEvent.id;
+            }
+        }
     }
     
     public Game(Room room) {
         this.id = room.id;
         this.name = room.name;
         this.gameMap = MapGenerator.generateMap();
-        for (Player player : room.players) {
+        this.round = 0;
+        this.lastReceived = 0;
+
+        if (players == null) {
+            players = new ArrayList<Player>();
+        }
+        for (Player player: room.players) {
             players.add(player);
             player.randomStart(gameMap);
             player.game = this;
         }
+        this.initAvailableRoles();
+        for (Player player: players) {
+            randomRole(player);
+        }
+    }
+    
+    /**
+     * States that a play had entered the game.
+     */
+    public void enterGame() {
         this.events.publish(new StartEvent(this));
-        this.round = 0;
-        this.lastReceived = 0;
-        this.nextPlayer();
+        if (currentPlayer == null) {
+            this.nextPlayer();
+        }
+    }
+    
+    private void initAvailableRoles() {
+        if (availableRoles == null) {
+            availableRoles = new LinkedList<Role>();
+        }
+        for (Role role : Role.all()) {
+            boolean taken = false;
+            for (Player player : players) {
+                if (role.equals(player.role)) {
+                    taken = true;
+                    break;
+                }
+            }
+            if (taken == false) {
+                availableRoles.add(role);
+            }
+        }
+    }
+    
+    private void randomRole(Player player) {
+        if (player.role.isRandom()) {
+            if (availableRoles.size() == 0) {
+                throw new GameException("Not enough role available");
+            }
+            int random = seed.nextInt(availableRoles.size());
+            player.role = availableRoles.get(random);
+            availableRoles.remove(random);
+        }
     }
 
     public Game save() {
@@ -79,12 +142,19 @@ public class Game {
         return currentPlayer != null && connected.equals(currentPlayer.name);
     }
     
+    /**
+     * Record the last active time of the given player.
+     * A {@link GameException} would be thrown if no player match the given id.
+     * @param playerId The given player id.
+     */
     public void recordLastAvtive(Integer playerId) {
         for (Player player : players) {
             if (playerId.equals(player.id)) {
                 player.recordLastActive();
+                return;
             }
         }
+        throw new GameException("No such player " + playerId);
     }
     
     /**
@@ -112,6 +182,20 @@ public class Game {
         this.events.publish(new NextPlayerEvent(currentPlayer.name));
     }
     
+    /**
+     * Change the the given cell to the given owner.
+     * If the <code>ownerName</code> is null, it indicates to clear the owner of the given cell.
+     * @param ownerName The owner to change into.
+     * @param cell The given cell list.
+     */
+    public void changeCellOwner(String ownerName, Cell... cells) {
+        List<Integer> cellIds = new ArrayList<Integer>();
+        for (Cell cell : cells) {
+            cellIds.add(cell.id);
+        }
+        this.events.publish(new OwnerChangeEvent(ownerName, cellIds));
+    }
+    
     private void nextRound() {
         if (!this.gameEnd()) {
             round++;
@@ -132,10 +216,6 @@ public class Game {
             return true;
         }
         return false;
-    }
-    
-    public void recordHeartbeat(Integer playerId) {
-        
     }
     
     public enum Action {
@@ -175,7 +255,7 @@ public class Game {
         public abstract void doAction(Game currentGame);
     }
 
-    static class StartEvent extends Event {
+    public static class StartEvent extends Event {
 
         public final Game game;
         
@@ -184,7 +264,19 @@ public class Game {
         }
     }
     
-    static class NextPlayerEvent extends Event {
+    public static class OwnerChangeEvent extends Event {
+        
+        public final String ownerName;
+        
+        public final List<Integer> cellIds;
+        
+        public OwnerChangeEvent(String ownerName, List<Integer> cellIds) {
+            this.ownerName = ownerName;
+            this.cellIds = cellIds;
+        }
+    }
+    
+    public static class NextPlayerEvent extends Event {
         
         public final String playerName;
         
@@ -194,7 +286,7 @@ public class Game {
         
     }
     
-    static class NextRoundEvent extends Event {
+    public static class NextRoundEvent extends Event {
         
         public final int round;
         
@@ -203,12 +295,11 @@ public class Game {
         }
     }
     
-    static class EndGameEvent extends Event {
+    public static class EndGameEvent extends Event {
         
     }
     
     public static class Serializer implements JsonSerializer<Game> {
-
         @Override
         public JsonElement serialize(Game src, Type type,
                 JsonSerializationContext ctx) {

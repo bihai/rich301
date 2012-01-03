@@ -12,6 +12,7 @@
 		R301.constants.CONTEXT_PATH = "${play.ctxPath}";
 		R301.constants.CURRENT_USER = "${controllers.Secure.Security.connected()}";
 		R301.constants.PUBLIC_PATH = R301.constants.CONTEXT_PATH + "/public";
+		R301.constants.ROLE_FACE_ROOT = "${play.ctxPath}${play.configuration['rich301.role.url.prefix']}/";
 		</script>
 		<script src="@{'/public/javascripts/map-config.js'}" type="text/javascript"></script>
 		<script src="@{'/public/javascripts/main.js'}" type="text/javascript"></script>

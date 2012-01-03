@@ -19,7 +19,7 @@ public class Role {
 
     public static final Role RANDOM = new RandomRole(); 
 
-    private static final Map<Integer, Role> STORE = new LinkedHashMap<Integer, Role>();
+    static final Map<Integer, Role> STORE = new LinkedHashMap<Integer, Role>();
 
     public Integer id;
 

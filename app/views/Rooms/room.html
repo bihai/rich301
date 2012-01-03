@@ -41,7 +41,6 @@
         leaveButton: $("#leave"),
         playersContainer: $("#players"),
         roleSelector: $("#role-selector"),
-        faceRoot: "${play.ctxPath}${play.configuration['rich301.role.url.prefix']}/",
         roles: [
             #{list items: roles, as: "role"}
             { id: ${role.id}, name: "${role.name}", face: "${role.face}" }${role_isLast ? "" : ","}

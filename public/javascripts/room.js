@@ -63,12 +63,6 @@
             leaveButton: null,
 
             /**
-             * Root URL to store role face.
-             * @type string
-             */
-            faceRoot: null,
-            
-            /**
              * All roles list.
              * @type array
              */
@@ -92,15 +86,15 @@
          * Render players.
          */
         renderPlayers: function() {
-            var me = this, faceRoot = this.options.faceRoot,
-                container = this.options.playersContainer,
+            var me = this, container = this.options.playersContainer,
                 startButton = this.options.startButton;
             container.empty();
             $.each(this.players, function(i, player) {
                 var self = (player.name == R301.constants.CURRENT_USER),
-                    htmls = [], el;
+                    htmls = [], el,
+                    face = R301.constants.ROLE_FACE_ROOT + player.role.face;
                 htmls.push('<li class="' + (self ? 'me' : 'other') + '">');
-                htmls.push('<img class="role" src="' + (faceRoot + player.role.face) + '" />');
+                htmls.push('<img class="role" src="' + face + '" />');
                 htmls.push('<div class="details">')
                 htmls.push('<em class="name">' + player.name + '</em>'); 
                 htmls.push('<em class="role-name">' + i18n(player.role.name) + '</em>'); 
@@ -123,14 +117,14 @@
          */
         renderRoleSelector: function() {
             var me = this, list = this.options.roleSelector.find("ul"), 
-                htmls, i, n, role, faceRoot = this.options.faceRoot,
-                roles = this._getUnselectedRoles();
+                htmls, i, n, role, roles = this._getUnselectedRoles(), face;
             list.empty();
             for (i = 0, n = roles.length; i < n; i++) {
                 role = roles[i];
+                face = R301.constants.ROLE_FACE_ROOT + role.face;
                 htmls = [];
                 htmls.push('<li>');
-                htmls.push('<img class="role" src="' + (faceRoot + role.face) + '" />');
+                htmls.push('<img class="role" src="' + face + '" />');
                 htmls.push('<em>' + role.name + '</em>');
                 htmls.push('</li>');
                 $(htmls.join("")).bind("click", role, function(event) {
@@ -208,15 +202,15 @@
          * @param {object} role Selected role
          */
         onRoleSelected: function(role) {
-            var me = this, faceRoot = this.options.faceRoot,
-                changeRoleAction = this.options.changeRoleAction,
+            var me = this,  changeRoleAction = this.options.changeRoleAction,
                 playersContainer = this.options.playersContainer;
             $.ajax({
                 url: changeRoleAction({ roleId: role.id }),
                 type: "PUT",
                 contentType: "application/json",
                 success: function() {
-                    playersContainer.find(".me img").attr("src", (faceRoot + role.face));
+                    var face = R301.constants.ROLE_FACE_ROOT + role.face;
+                    playersContainer.find(".me img").attr("src", face);
                     playersContainer.find(".me .role-name").text(role.name);
                     me.options.roleSelector.hide("fast");
                 },

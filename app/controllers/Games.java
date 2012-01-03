@@ -32,14 +32,20 @@ public class Games extends Controller {
     public static void game(Integer gameId) {
         Game game = Game.get(gameId);
         notFoundIfNull(game);
+        game.enterGame();
         render(game);
     }
 
     public static void waitEvents(Integer gameId, Long lastReceived) {
         Game game = Game.get(gameId);
         notFoundIfNull(game);
+        String connected = Security.connected();
+        if (!game.validPlayer(connected)) {
+            unauthorized();
+        }
         List<IndexedEvent<Event>> events = await(game.nextEvents(lastReceived));
         String eventsJson = RichUtil.eventsToJson(events);
+        game.refreshLastReceived();
         renderJSON(eventsJson);
     }
 
@@ -53,6 +59,15 @@ public class Games extends Controller {
         Game.Action currentAction = Game.Action.valueOf(actionName.toUpperCase());
         notFoundIfNull(currentAction);
         currentAction.doAction(game);
+    }
+    
+    public static void lastReceived(Integer gameId) {
+        Game game = Game.get(gameId);
+        notFoundIfNull(game);
+        String connected = Security.connected();
+        if (!game.validPlayer(connected)) {
+            unauthorized();
+        }
     }
     
 }

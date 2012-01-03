@@ -1,9 +1,9 @@
 import org.junit.*;
 import java.util.*;
+
 import play.test.*;
 import util.RichUtil;
 import models.*;
-import models.GameMap;
 
 public class BasicTest extends UnitTest {
 
@@ -13,8 +13,15 @@ public class BasicTest extends UnitTest {
     }
 
     @Test
-    public void testMapJson() {
-        GameMap map = MapGenerator.generateMap();
-        System.out.println(RichUtil.mapToJson(map));
+    public void testXXX() {
+        List<Integer> ints = new ArrayList<Integer>();
+        ints.add(1);
+        ints.add(2);
+        
+        Integer[] array = ints.toArray(new Integer[0]);
+        
+        for (Integer integer : array) {
+            System.out.println(integer);
+        }
     }
 }

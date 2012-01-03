@@ -3,11 +3,14 @@
 #{set 'moreScripts'}
 <script src="@{'/public/javascripts/statusbar.js'}" type="text/javascript" charset="UTF-8"></script>
 #{/set}
+#{set 'moreStyles'}
+<link rel="stylesheet" media="screen" href="@{'/public/stylesheets/game.css'}" />
+#{/set}
 
 <div id="statusbar">
-    <div id="game">
-        <h1 id="game-name"></h1>
+    <div id="details">
         <em></em>
+        <h1></h1>
     </div>
     <ul id="players">
     </ul>
@@ -18,11 +21,12 @@
 
 <script type="text/javascript">
 var gameId = "${game.id}";
+var lastReceived = "${game.lastReceived}";
 (function($, window) {
 
     // Status bar
     new R301.module.Statusbar({
-        container: $("#statubar")
+        container: $("#statusbar")
     });
     
     R301.module.Action.playerReady();
@@ -37,7 +41,7 @@ var gameId = "${game.id}";
 			i++;
 		}
 	    
-	});
+	}, lastReceived);
     
 })(jQuery, window);
 </script>
