@@ -4,8 +4,7 @@
 				gridWidth: 64,
 				gridHeight: 48,
 				background: '',
-				map: '',
-				fps: 25
+				map: ''
 			}, settings);
 		
 		if(!settings.background || !settings.map) {
@@ -15,14 +14,15 @@
 		
 		var	me = this,
 			canvas = document.createElement('canvas'),
+			bgCanvas = document.createElement('canvas'),
 			ctx = canvas.getContext('2d');
 		
-		this.canvas = canvas;              
+		this.canvas = canvas;  
+		this.bgCanvas = bgCanvas;
 		this.ctx = ctx;
 		this.queue = [];
 		this.actions = [];
 		this.settings = settings;
-		this.interval = 1000 / settings.fps;
 	};
 	
 	Game.prototype = {
@@ -40,13 +40,18 @@
 			var me = this,
 				img = document.createElement('img'),
 				canvas = this.canvas,
-				ctx = this.ctx;
+				bgCanvas = this.bgCanvas,
+				ctx = this.ctx,
+				bctx = bgCanvas.getContext('2d');
 			
 			img.addEventListener('load', function() {
 				var i = 0, actions = me.actions, len = actions.length;
+				bgCanvas.width = this.width;
+				bgCanvas.height = this.height;
 				canvas.width = this.width;
 				canvas.height = this.height;
 				ctx.drawImage(this, 0, 0);
+				bctx.drawImage(this, 0, 0);
 				setTimeout(function() {
 					for(i; i < len; i++) {
 						actions[i]();
@@ -55,19 +60,12 @@
 			});
 			
 			img.src = this.settings.background;
-			
-			setInterval(function() {
-				var t;
-				if(me.queue.length > 0) {
-					while(me.queue.length > 0) {
-						t = me.queue.shift();
-						t.constructor === Function && t();
-					}
-				}
-			}, this.interval);
 		},
 		draw: function(canvas, dx, dy) {
 			this.ctx.drawImage(canvas, dx, dy);
+		},
+		restore: function() {
+			this.draw(this.bgCanvas, 0, 0);
 		}
 	};
 	
@@ -173,9 +171,9 @@
 		getPosition: function() {
 			return this.position;
 		},
-		setPosition: function(opt) {
-			this.position = opt;
-		}
+		setPosition: function(x, y) {
+			this.position = { x: x, y: y };
+		},
 	};
 	
 	var Data = {
@@ -193,12 +191,19 @@
 	                	var i = 0, len = events.length;
 	            		while(i < len) {
 	            			var event = events[i],
-	            				data = event.data;
+	            				data = event.data,
+	            				win = $(window);
+	            			
 	            			if (data.type == "StartEvent") {
-	            	            $(window).trigger('startGame', [data.game]);
+	            	            win.trigger('startGame', [data.game]);
 	            		    }else if(data.type == "DiceEvent") {
-	            		    	$(window).trigger('rollDice', [data.value]);
+	            		    	win.trigger('rollDice', [data.value]);
+	            		    }else if(data.type == 'MoveEvent') {
+	            		    	win.trigger('playerMove', [data.cellId]);
+	            		    }else if(data.type == 'NextPlayerEvent') {
+	            		    	win.trigger('nextPlayer', [data.playerName]);
 	            		    };
+	            		    
 	            			i++;
 	            			lastReceived = event.id;
 	            		}
@@ -232,11 +237,23 @@
 		bug: function() {},
 		run: function() {},
 		showDice: function() {
+			var timerId = 0;
 			$(window).bind('rollDice', function(event, value) {
+				clearTimeout(timerId);
 				setTimeout(function() {
-					var dice = Data.dice;
-					dice.stopRandom();
-					dice.setNumber(value);
+					var dice = Data.dice,
+						pos = Action.parsePosition(Data.moveNum);
+						name = Data.currentPlayerName,
+						player = Data.playerList[name];
+						dice.stopRandom();
+						dice.setNumber(value);
+					
+					player.setPosition(pos.x, pos.y);
+					Data.game.restore();
+					Action.updatePlayerOnMap();
+					timerId = setTimeout(function() {
+						dice.hide();
+					}, 1000);
 				}, 1000);
 			});
 		},
@@ -245,30 +262,32 @@
 				var players = game.players,
 					gameMap = game.gameMap,
 					i = 0, len = players.length,
-					x = 0, y = 0,
+					pos = null,
 					avatarPath = R301.constants.PUBLIC_PATH + '/data/roles/',
 					game = new R301.module.Game({
 						background: background,
 						map: gameMap.mapCells
 					});
-			    
+				//地图行数
+				mapRow = gameMap.height;
+				//地图列数
+				mapCol = gameMap.width;
+				
 				for(i; i < len; i++) {
 					(function(index) {
 						var player = players[index];
+						pos = Action.parsePosition(player.currentCellId);
 						
-						y = parseInt(player.currentCellId / gameMap.width);
-						x = player.currentCellId % gameMap.width;
-						
-						Data.playerList[player.role.name] = new R301.module.Player({
+						Data.playerList[player.name] = new R301.module.Player({
 							avatar: avatarPath + player.role.face,
 							width: 64, 
 							height: 64,
-							x: x,
-							y: y
+							x: pos.x,
+							y: pos.y
 						});
 						
 						game.registAction(function() {
-							var p = Data.playerList[player.role.name],
+							var p = Data.playerList[player.name],
 								position = p.getPosition();
 							game.draw(p.getPlayer(), position.x * cellWidth, position.y * cellHeight - fixHeight);
 						});
@@ -277,10 +296,35 @@
 				};
 				game.appendTo(document.body);
 			    game.run();
+			    Data.game = game;
 			});
 		}()),
-		currentClientSize: function() {
-			
+		nextPlayer: (function() {
+			$(window).bind('nextPlayer', function(event, playerName) {
+				Data.currentPlayerName = playerName;
+			});
+		}()),
+		playerMove: (function() {
+			$(window).bind('playerMove', function(event, num) {
+				Data.moveNum = num;
+			});
+		}()),
+		parsePosition: function(num) {
+			return { 
+				y: parseInt(num / mapCol),
+				x: num % mapCol
+			}
+		},
+		updatePlayerOnMap: function() {
+			var playerList = Data.playerList,
+				game = Data.game,
+				pos = null,
+				player = null;
+			for(i in playerList) {
+				player = playerList[i];
+				pos = player.getPosition();
+				game.draw(player.getPlayer(), pos.x * cellWidth, pos.y * cellHeight - fixHeight);
+			}
 		}
 	};
 	
