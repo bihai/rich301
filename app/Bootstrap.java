@@ -1,4 +1,5 @@
 import models.Cell;
+import models.EmptyCell;
 import models.EstateCell;
 import models.Game;
 import models.Player;
@@ -36,5 +37,6 @@ public class Bootstrap extends Job {
         RichUtil.builder.registerTypeAdapter(Player.class, new Player.Serializer());
         RichUtil.builder.registerTypeAdapter(Cell.class, new Cell.Serializer());
         RichUtil.builder.registerTypeAdapter(EstateCell.class, new EstateCell.Serializer());
+        RichUtil.builder.registerTypeAdapter(EmptyCell.class, new EmptyCell.Serializer());
     }
 }
