@@ -163,9 +163,9 @@ public class Game {
      * A {@link GameException} would be thrown if no player match the given id.
      * @param playerId The given player id.
      */
-    public void recordLastReceived(Integer playerId, Integer lastReceived) {
+    public void recordLastReceived(String playerName, Integer lastReceived) {
         for (Player player : players) {
-            if (playerId.equals(player.id)) {
+            if (playerName.equals(player.id)) {
                 player.recordLastReceived(lastReceived);
                 if (player.connected == false) {
                     this.publish(new ConnectedEvent(player.name));
@@ -173,7 +173,7 @@ public class Game {
                 return;
             }
         }
-        throw new GameException("No such player " + playerId);
+        throw new GameException("No such player " + playerName);
     }
     
     /**

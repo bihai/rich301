@@ -71,11 +71,15 @@ public class Games extends Controller {
         renderJSON(gameJson);
     }
     
-    public void recordLastReceived(Integer gameId, Integer playerId, Integer lastReceived) {
+    public void recordLastReceived(Integer gameId, Integer lastReceived) {
         Game game = Game.get(gameId);
         notFoundIfNull(game);
+        String connected = Security.connected();
+        if (!game.validPlayer(connected)) {
+            unauthorized();
+        }
         try {
-            game.recordLastReceived(playerId, lastReceived);
+            game.recordLastReceived(connected, lastReceived);
         }
         catch (GameException e) {
             error(e.getMessage());
