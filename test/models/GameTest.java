@@ -73,6 +73,15 @@ public class GameTest {
         assertEquals("guolin2", game.players.get(1).role.name);
     }
     
+    @Test
+    public void testValidPlayer() {
+        Room room = new Room("The room2");
+        room.join(new Player("xxx1", new Role.RandomRole()));
+        room.join(new Player("xxx2", new Role.RandomRole()));
+        Game game = new Game(room);
+        assertTrue(game.validPlayer("xxx1"));
+    }
+    
     @After
     public void tearDown() {
         Role.STORE.clear();

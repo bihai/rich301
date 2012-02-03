@@ -30,6 +30,7 @@ import util.RichUtil;
  * Game model.
  * 
  * @author GuoLin
+ * @author Sean
  *
  */
 public class Game {
@@ -154,6 +155,11 @@ public class Game {
         return STORE.get(id);
     }
     
+    /**
+     * Check if the connected player is valid in the game.
+     * @param connected The connected player.
+     * @return If valid.
+     */
     public boolean validPlayer(String connected) {
         return currentPlayer != null && connected.equals(currentPlayer.name);
     }
@@ -358,6 +364,7 @@ public class Game {
             gameObject.add("currentPlayer", ctx.serialize(src.currentPlayer));
             gameObject.add("gameMap", ctx.serialize(src.gameMap));
             gameObject.add("round", new JsonPrimitive(src.round));
+            gameObject.add("lastReceived", new JsonPrimitive(src.lastReceived));
             return gameObject;
         }
     }

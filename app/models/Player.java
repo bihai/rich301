@@ -18,6 +18,7 @@ import exception.GameException;
  * Player model.
  * 
  * @author GuoLin
+ * @author Sean
  *
  */
 public class Player {
