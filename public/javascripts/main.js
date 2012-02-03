@@ -181,6 +181,36 @@
 	};
 	
 	var Action = {
+		startGame: function() {
+			$.ajax({
+				url: '/ajax/games/'+ gameId +'/enter',
+				contentType: 'application/json',
+				type: 'POST',
+				success: function(events, textStatus) {
+					'/ajax/games/{gameId}/{playerId}/lastreceived';
+				},
+				error: function(request, textStatus, error) {
+					
+				}
+			});
+		},
+		lastReceived: 0,
+		full: function() {
+			var me = this;
+			$.ajax({
+                url: '/ajax/games/'+ gameId +'/enter',
+                type: 'POST',
+                contentType: "application/json",
+                success: function(events, textStatus) {
+        			me.lastReceived = events.lastReceived;
+                	$(window).trigger('startGame', [events]);
+                	Action.bug(events.gameMap, events.currentPlayer);
+                },
+                error: function(request, textStatus, error) {
+                	
+                }
+            });
+		},
 		events: (function() {
 			var lastReceived = 0;
 			return function() {
@@ -203,7 +233,6 @@
 	            		    }else if(data.type == 'NextPlayerEvent') {
 	            		    	win.trigger('nextPlayer', [data.playerName]);
 	            		    };
-	            		    
 	            			i++;
 	            			lastReceived = event.id;
 	            		}
@@ -222,10 +251,10 @@
 				dice.random();
 				dice.setPosition();
 				dice.show();
-				console.log(12)
 				$.ajax({
 					url: '/ajax/games/'+ gameId +'/action/roll',
 	                contentType: "application/json",
+	                type: 'POST',
 	                success: function(events, textStatus) {
 	                	
 	                },
@@ -234,7 +263,32 @@
 	            });
 			});
 		},
-		bug: function() {},
+		bug: function(gameMap, currentPlayer) {
+			var mapCells = gameMap.mapCells,
+				pos = Action.parsePosition(currentPlayer.currentCellId),
+				cell = mapCells[pos.y][pos.x],
+				action = null;
+			console.log(cell.type, currentPlayer.cash, cell.price);
+			if(cell.type == 'EstateCell' && currentPlayer.cash >= cell.price) {
+				var dialog = new Widget.Dialog({
+					text: '亲，你要买下这块地吗？很便宜哦，只要'+ cell.price +'刀哦～！',
+					ok: function() {
+						$.ajax({
+							url: '/ajax/games/'+ gameId +'/action/buy',
+			                contentType: "application/json",
+			                type: 'POST',
+			                success: function(events, textStatus) {
+			                	console.log(events, textStatus);
+			                },
+			                error: function(request, textStatus, error) {
+			                }
+			            });
+					}
+				});
+				dialog.bind();
+				dialog.appendTo($('body'));
+			}
+		},
 		run: function() {},
 		showDice: function() {
 			var timerId = 0;
@@ -310,7 +364,8 @@
 			});
 		}()),
 		parsePosition: function(num) {
-			return { 
+			console.log(parseInt(num / mapCol), num % mapCol);
+			return {
 				y: parseInt(num / mapCol),
 				x: num % mapCol
 			}
@@ -327,6 +382,41 @@
 			}
 		}
 	};
+	
+	var Widget = {};
+	Widget.Dialog = function(settings) {
+		settings = $.extend({
+			posX: 200,
+			posY: 200,
+			text: '',
+			ok: function() {},
+			cancel: function() {}
+		}, settings);
+		var mainJO = $('<div class="widget-dialog"><p class="widget-dialog-content">'+ settings.text +'</p><div class="widget-dialog-bar"><input type="button" class="ok" value="确定"/><input class="cancel" type="button" value="取消"/></div></div>')
+			.css({ top: settings.posY, left: settings.posX }),
+			okJO = $('.ok', mainJO),
+			cancelJO = $('.cancel', mainJO);
+		
+		this.settings = settings;
+		this.okJO = okJO;
+		this.cancelJO = cancelJO;
+		this.mainJO = mainJO;
+	};
+	Widget.Dialog.prototype = {
+		bind: function() {
+			var me = this;
+			this.okJO.bind('click', function() {
+				me.settings.ok();
+			});
+			this.cancelJO.bind('click', function() {
+				me.settings.cancel();
+				me.mainJO.hide();
+			});
+		},
+		appendTo: function(el) {
+			this.mainJO.appendTo(el);
+		}
+	}
 	
 	R301.module.Game = Game;
 	R301.module.Player = Player;
